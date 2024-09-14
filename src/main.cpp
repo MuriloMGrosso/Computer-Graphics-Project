@@ -98,7 +98,8 @@ void draw()
 		glRotatef(fishHead.getRotationX(), 0, 0, 1);
 		glRotatef(fishHead.getRotationY(), 0, 1, 0);
 		glRotatef(fishHead.getRotationZ(), 1, 0, 0);
-	glutWireCube(5.0);
+		glutWireCube(5.0);
+	glPopMatrix();
 
 	// Cabeca do peixe
 	glColor3f(0.8, 0.0, 0.3);
