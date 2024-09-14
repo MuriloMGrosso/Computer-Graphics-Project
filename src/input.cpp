@@ -56,3 +56,19 @@ bool input::isRightPressed() {
         input::isKeyPressed('D') ||
         input::isSpecialKeyPressed(GLUT_KEY_RIGHT);
 }
+
+short input::getHorizontalAxis() {
+    if(input::isLeftPressed() && !input::isRightPressed())
+        return -1;
+    if(!input::isLeftPressed() && input::isRightPressed())
+        return 1;
+    return 0;
+}
+
+short input::getVerticalAxis() {
+    if(input::isDownPressed() && !input::isUpPressed())
+        return -1;
+    if(!input::isDownPressed() && input::isUpPressed())
+        return 1;
+    return 0;
+}

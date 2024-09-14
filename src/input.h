@@ -21,6 +21,9 @@ namespace input{
     bool isDownPressed();                   // Verifica se S ou Down foram pressionadas
     bool isLeftPressed();                   // Verifica se A ou LEFT foram pressionadas
     bool isRightPressed();                  // Verifica se D ou RIGHT foram pressionadas
+
+    short getHorizontalAxis();    // Retorna a direcao horizontal (-1, 0 ou 1)
+    short getVerticalAxis();      // Retorna a direcao vertical (-1, 0 ou 1)
 }
 
 #endif
