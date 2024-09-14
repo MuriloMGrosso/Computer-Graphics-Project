@@ -67,13 +67,27 @@ void update(int value) {
 	 * Nota: Multiplicar por DELTA_TIME garante que o 
 	 * movimento seja o mesmo independentemente do FPS 
 	 * escolhido.
-	 */ 
+	 */ 	
+
 	fishFocus.translate
 	(
 		input::getHorizontalAxis() * FISH_SPEED * DELTA_TIME,
 		input::getVerticalAxis() * FISH_SPEED * DELTA_TIME,
 		input::getDepthAxis() * FISH_SPEED * DELTA_TIME
-	);
+	);	
+
+	float X, Y, Z;
+
+	X = fishFocus.getX();
+	Y = fishFocus.getY();
+	Z = fishFocus.getZ();
+
+	if(X > 90) fishFocus.translate(90 - X, 0, 0);
+	if(X < -90) fishFocus.translate(-90 - X, 0, 0);
+	if(Y > 90) fishFocus.translate(0, 90 - Y, 0);
+	if(Y < -90) fishFocus.translate(0, -90 - Y, 0);
+	if(Z > 90) fishFocus.translate(0, 0, 90 - Z);
+	if(Z < -90) fishFocus.translate(0, 0, -90 - Z);
 
 	fishHead.updatePosition(); fishDorsal.updatePosition(); fishTail.updatePosition(); // Atualizar posicoes
 
