@@ -38,16 +38,14 @@ bool input::isUpPressed()
 {
     return 
         input::isKeyPressed('w') ||
-        input::isKeyPressed('W') ||
-        input::isSpecialKeyPressed(GLUT_KEY_UP);
+        input::isKeyPressed('W');
 }
 
 bool input::isDownPressed() 
 {
     return 
         input::isKeyPressed('s') || 
-        input::isKeyPressed('S') ||
-        input::isSpecialKeyPressed(GLUT_KEY_DOWN);
+        input::isKeyPressed('S');
 }
 
 bool input::isLeftPressed() 
@@ -66,6 +64,19 @@ bool input::isRightPressed()
         input::isSpecialKeyPressed(GLUT_KEY_RIGHT);
 }
 
+bool input::isForwardPressed() 
+{
+    return 
+        input::isSpecialKeyPressed(GLUT_KEY_UP);
+}
+
+bool input::isBackwardPressed() 
+{
+    return 
+        input::isSpecialKeyPressed(GLUT_KEY_DOWN);
+}
+
+
 short input::getHorizontalAxis() 
 {
     if(input::isLeftPressed() && !input::isRightPressed()) return -1;
@@ -77,5 +88,12 @@ short input::getVerticalAxis()
 {
     if(input::isDownPressed() && !input::isUpPressed()) return -1;
     if(!input::isDownPressed() && input::isUpPressed()) return 1;
+    return 0;
+}
+
+short input::getDepthAxis()
+{
+    if(input::isForwardPressed() && !input::isBackwardPressed())  return -1;
+    if(!input::isForwardPressed() && input::isBackwardPressed()) return 1;
     return 0;
 }

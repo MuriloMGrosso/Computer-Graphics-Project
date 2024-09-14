@@ -17,15 +17,18 @@ namespace input{
 
     bool isKeyPressed(unsigned char key);   			// Verifica se a tecla ASCII foi pressionada
     bool isSpecialKeyPressed(int key);      			// Verifica se a tecla especial GLUT foi pressionada
-    bool isUpPressed();                     			// Verifica se W ou UP foram pressionadas
-    bool isDownPressed();                   			// Verifica se S ou Down foram pressionadas
-    bool isLeftPressed();                   			// Verifica se A ou LEFT foram pressionadas
-    bool isRightPressed();                  			// Verifica se D ou RIGHT foram pressionadas
+    bool isUpPressed();                     			// Verifica se W foi pressionada
+    bool isDownPressed();                   			// Verifica se S foi pressionada
+    bool isLeftPressed();                   			// Verifica se A foi pressionada
+    bool isRightPressed();                  			// Verifica se D foi pressionada
+    bool isForwardPressed();					// Verifica se UP foi pressionada
+    bool isBackwardPressed();					// Verifica se DOWN foi pressionada
 
     void endSimulation();					// Finaliza a simulacao
 
     short getHorizontalAxis();    				// Retorna a direcao horizontal (-1, 0 ou 1)
     short getVerticalAxis();      				// Retorna a direcao vertical (-1, 0 ou 1)
+    short getDepthAxis();					// Retorna a direcao em profundidade (-1, 0 ou 1) 
 }
 
 #endif

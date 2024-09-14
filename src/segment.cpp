@@ -15,9 +15,7 @@ void Segment::updatePosition()
     zDif = target->getZ() - z;
 
     distDif = sqrt(
-        pow(xDif, 2) +
-        pow(yDif, 2) +
-        pow(zDif, 2) 
+        pow(xDif, 2) + pow(yDif, 2) + pow(zDif, 2) 
     );
 
     x = target->getX() - (distDif == 0 ? 0 : xDif/distDif * dist);

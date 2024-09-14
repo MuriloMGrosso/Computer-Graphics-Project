@@ -8,6 +8,7 @@
  * Octavio X. Furio
  */
 
+#include <cmath>
 #include <iostream>
 #include <GL/glut.h>
 #include <GL/gl.h>
@@ -23,11 +24,15 @@ float camWidth = 640.0;			// Largura da camera (pixels)
 float camHeight = 360.0;		// Altura da camera (pixels)
 float camAspect = camWidth/camHeight;	// Aspecto da camera
 float camAngle = 45.0;			// Angulo da view da camera
+					
+float radius = 300.0;
+float pos = 0.0;
+
 float camX = 0.0;			// Posicao X da camera
 float camY = 0.0;			// Posicao Y da camera
-float camZ = 300.0;			// Posicao Z da camera
+float camZ = radius;			// Posicao Z da camera
 
-Segment fishFocus(NULL, 	0);	// O que o peixe segue
+Segment fishFocus(NULL, 	50);	// O que o peixe segue
 Segment fishHead(&fishFocus, 	20);	// Cabeca do peixe
 Segment fishDorsal(&fishHead, 	20);	// Corpo do peixe
 Segment fishTail(&fishDorsal, 	20);	// Cauda do peixe
@@ -42,11 +47,11 @@ void windowSizeUpdate(int width, int height); 	// Atualiza o tamanho da janela
 void mouseManager(int button, int state, int x, int y) 
 {
 	switch(button) {
-		case 0: break;
-		case 1: break;
-		case 2: break;
-		case 3: camAngle *= 0.95; 	break;
-		case 4: camAngle *= 1. / 0.95; 	break;
+		case 0: pos -= 0.1; camX = radius * sin(pos); camZ = radius * cos(pos); break; 	// Botao esq
+		case 1: break;									// Botao meio
+		case 2: pos += 0.1; camX = radius * sin(pos); camZ = radius * cos(pos); break; 	// Botao dir
+		case 3: camAngle *= 0.95; 	break;	// Wheel up
+		case 4: camAngle *= 1.05; 	break;	// Wheel down
 	}
 }
 
@@ -67,7 +72,7 @@ void update(int value) {
 	(
 		input::getHorizontalAxis() * FISH_SPEED * DELTA_TIME,
 		input::getVerticalAxis() * FISH_SPEED * DELTA_TIME,
-		0
+		input::getDepthAxis() * FISH_SPEED * DELTA_TIME
 	);
 
 	fishHead.updatePosition(); fishDorsal.updatePosition(); fishTail.updatePosition(); // Atualizar posicoes
@@ -81,6 +86,10 @@ void draw()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glViewport(0, 0, camWidth, camHeight);
+
+	// Aquario
+	glColor3f(0, 0, 1);
+	glutWireCube(200.0);
 
 	// Cabeca do peixe
 	glColor3f(0.8, 0.0, 0.3);
@@ -161,9 +170,9 @@ void updateView() {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	gluLookAt(	camX, 	camY, 	camZ,
-			0, 	0, 	0,
-			0, 	1, 	0
+	gluLookAt(	camX, 	camY, 	camZ,	// Cam-pos
+			fishFocus.getX(), fishFocus.getY(), fishFocus.getZ(),	// Tar-pos
+			0, 	1, 	0	// Normal
 		);
 
 	glutPostRedisplay();
