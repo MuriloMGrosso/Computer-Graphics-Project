@@ -91,6 +91,15 @@ void draw()
 	glColor3f(0, 0, 1);
 	glutWireCube(200.0);
 
+	// Isca
+	glColor3f(1, 1, 1);
+	glPushMatrix();
+		glTranslatef(fishFocus.getX(), fishFocus.getY(), fishFocus.getZ());
+		glRotatef(fishHead.getRotationX(), 0, 0, 1);
+		glRotatef(fishHead.getRotationY(), 0, 1, 0);
+		glRotatef(fishHead.getRotationZ(), 1, 0, 0);
+	glutWireCube(5.0);
+
 	// Cabeca do peixe
 	glColor3f(0.8, 0.0, 0.3);
 	glPushMatrix();
