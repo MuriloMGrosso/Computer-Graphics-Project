@@ -1,16 +1,14 @@
 #include "segment.h"
 #include <math.h>
 
-Segment::Segment(Segment* target, float dist) :
-    target(target), dist(dist)
-{}
+Segment::Segment(Segment* target, float dist) : target(target), dist(dist) {}
 
-void Segment::updatePosition() {
+void Segment::updatePosition() 
+{
     float distDif;
     float xDif, yDif, zDif;
     
-    if(!target)
-        return;
+    if(!target) return;
 
     xDif = target->getX() - x;
     yDif = target->getY() - y;
@@ -31,32 +29,15 @@ void Segment::updatePosition() {
     rotZ = atan(xDif == 0 ? 0 : yDif/xDif) * (180.0 / M_PI);
 }
 
-void Segment::translate(float x, float y, float z) {
-    this->x += x;
-    this->y += y;
-    this->z += z;
+void Segment::translate(float x, float y, float z) 
+{
+    this->x += x; this->y += y; this->z += z;
 }
 
-float Segment::getX() {
-    return x;
-}
+float Segment::getX() { return x; }
+float Segment::getY() { return y; }
+float Segment::getZ() { return z; }
 
-float Segment::getY() {
-    return y;
-}
-
-float Segment::getZ() {
-    return z;
-}
-
-float Segment::getRotationX() {
-    return rotX;
-}
-
-float Segment::getRotationY() {
-    return rotY;
-}
-
-float Segment::getRotationZ() {
-    return rotZ;
-}
+float Segment::getRotationX() { return rotX; }
+float Segment::getRotationY() { return rotY; }
+float Segment::getRotationZ() { return rotZ; }

@@ -1,18 +1,14 @@
 #ifndef FISH_SEGMENT_H
 #define FISH_SEGMENT_H
 
-class Segment{
-private:
-    Segment* target;
-    float dist;
+class Segment
+{
+	private:
+		Segment* target;
+		float dist;
 
-    float x;
-    float y;
-    float z;
-
-    float rotX;
-    float rotY;
-    float rotZ;
+		float x, y, z;
+		float rotX, rotY, rotZ;
 
 public:
     Segment(Segment* target, float dist);
@@ -23,6 +19,7 @@ public:
     float getX();
     float getY();
     float getZ();
+
     float getRotationX();
     float getRotationY();
     float getRotationZ();
