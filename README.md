@@ -1,5 +1,2 @@
-Compile:
->g++ src/*.cpp -o bin/main -lGLU -lglut -lGL -lm
-
-Run:
->bin/main
+To compile and run:
+g++ src/*.cpp -o bin/main -lGLU -lglut -lGL -lm && ./bin/main
