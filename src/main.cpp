@@ -166,6 +166,7 @@ void draw()
 void start(int argc, char **argv) {
     glutInit(&argc, argv);    
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+    glEnable(GL_DEPTH_TEST);
 
     glutInitWindowPosition(700, 100);
     glutInitWindowSize(camWidth, camHeight);
