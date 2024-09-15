@@ -4,20 +4,20 @@
 
 void fishHeadModel(float s)
 {
-	glColor3f(1.0, 0.3, 0.0);
+	glColor4f(1.0, 0.3, 0.0, 1.);
 	glScalef(s, s, s);
 	glutSolidTetrahedron();
 }
 
 void fishDorsalModel(float s)
 {
-	glColor3f(0.9, 0.2, 0.0);
+	glColor4f(0.9, 0.2, 0.0, 1.);
 	glutSolidCube(s);
 }
 
 void fishTailModel(float s)
 {
-	glColor3f(1.0, 0.4, 0.0);
+	glColor4f(1.0, 0.4, 0.0, 1.);
 	glScalef(0.5 * s, 2. * s, 0.5 * s);
 	glutSolidTetrahedron();
 }
@@ -55,8 +55,73 @@ void castleModel(float x, float y, float z, float scale, float rotationX, float 
 
 void aquariumModel(float s) 
 {
-	glColor3f(0, 0.5, 1);
-	glutWireCube(s);
+	    glEnable(GL_COLOR_MATERIAL);
+    glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+ 
+    // Cores
+    GLfloat topColor[] 	  = {116.0 / 255.0, 225.0 / 255.0f, 178.0 / 255.0, 0.4};
+    GLfloat bottomColor[] = { 34.0 / 255.0,  68.0 / 255.0f, 164.0 / 255.0, 0.4};
+    GLfloat floorColor[]  = {239.0 / 255.0, 214.0 / 255.0f, 177.0 / 255.0, 1.0};
+
+    // Aquário
+    glPushMatrix();
+        glTranslatef(0.0, 0.0, 0.0);
+        glScalef(s/2., s/2., s/2.);
+
+        glBegin(GL_QUADS);
+
+    	    // Frente
+	    glColor4fv(bottomColor);
+	    glVertex3f(-1.0, -1.0, 1.0);
+	    glVertex3f(1.0, -1.0, 1.0);
+	    glColor4fv(topColor); 
+	    glVertex3f(1.0, 1.0, 1.0);
+	    glVertex3f(-1.0, 1.0, 1.0);
+	
+	    // Tras
+	    glColor4fv(bottomColor);
+	    glVertex3f(-1.0, -1.0, -1.0);
+	    glVertex3f(1.0, -1.0, -1.0);
+	    glColor4fv(topColor); 
+	    glVertex3f(1.0, 1.0, -1.0);
+	    glVertex3f(-1.0, 1.0, -1.0);
+	
+	    // Esquerda
+	    glColor4fv(bottomColor); 
+	    glVertex3f(-1.0, -1.0, -1.0);
+	    glVertex3f(-1.0, -1.0, 1.0);
+	    glColor4fv(topColor); 
+	    glVertex3f(-1.0, 1.0, 1.0);
+	    glVertex3f(-1.0, 1.0, -1.0);
+	
+	    // Direita
+	    glColor4fv(bottomColor); 
+	    glVertex3f(1.0, -1.0, -1.0);
+	    glVertex3f(1.0, -1.0, 1.0);
+	    glColor4fv(topColor); 
+	    glVertex3f(1.0, 1.0, 1.0);
+	    glVertex3f(1.0, 1.0, -1.0);
+	
+	    // Cima
+	    glColor4fv(topColor); 
+	    glVertex3f(-1.0, 1.0, -1.0);
+	    glVertex3f(1.0, 1.0, -1.0);
+	    glVertex3f(1.0, 1.0, 1.0);
+	    glVertex3f(-1.0, 1.0, 1.0);
+	
+	    // Abaixo
+	    glColor4fv(floorColor); 
+	    glVertex3f(-1.0, -1.0, -1.0);
+	    glVertex3f(1.0, -1.0, -1.0);
+	    glVertex3f(1.0, -1.0, 1.0);
+	    glVertex3f(-1.0, -1.0, 1.0);
+	
+	glEnd();
+    glPopMatrix();
+    
+    // Vidro do Aquario
+    glColor4f(1, 1, 1, 0.4);
+    glutWireCube(s);
 }
 
 void baitModel(float s)

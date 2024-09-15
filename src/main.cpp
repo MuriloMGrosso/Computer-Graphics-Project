@@ -106,13 +106,11 @@ void draw()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(0, 0, camWidth, camHeight);
 
-	// Aquario
-	glPushMatrix();
-	aquariumModel(AQUARIUM_SIZE);
-	glPopMatrix();
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Isca
-	glColor3f(1, 0, 0.8);
+	glColor4f(1, 0, 0.8, 1);
 	glPushMatrix();
 		glTranslatef(
 			fishFocus.getX(), 
@@ -159,6 +157,13 @@ void draw()
 		glRotatef(fishTail.getRotationZ(), 0, 0, 1);
 		fishTailModel(20.0);
 	glPopMatrix();
+	
+	// Aquario
+	glDepthMask(GL_FALSE);
+	glPushMatrix();
+	aquariumModel(AQUARIUM_SIZE);
+	glPopMatrix();
+	glDepthMask(GL_TRUE);
 
 	glutSwapBuffers();
 }
