@@ -1,4 +1,4 @@
-#include "segment.h"
+#include "libpack.h"
 #include <math.h>
 
 Segment::Segment(Segment* target, float dist) : target(target), dist(dist) {}

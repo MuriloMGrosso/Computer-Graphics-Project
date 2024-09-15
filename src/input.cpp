@@ -1,4 +1,4 @@
-#include "input.h"
+#include "libpack.h"
 #include <iostream>
 #include <GL/glut.h>
 

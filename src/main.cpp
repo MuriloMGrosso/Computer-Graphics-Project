@@ -13,22 +13,21 @@
 #include <GL/glut.h>
 #include <GL/gl.h>
 
-#include "input.h"
-#include "segment.h"
-#include "customObjects.h"
+#include "libpack.h"
 				
 #define FPS 60				// Frames por segundo
 #define DELTA_TIME 1.0/FPS		// Tempo por frame, em segundos
-#define CAM_MOVE_SPEED 100.0	// Velocidade de movimento da camera (pixels/s)
+#define CAM_MOVE_SPEED 100.0		// Velocidade de movimento da camera (pixels/s)
 #define CAM_ROT_SPEED 2.0		// Velocidade de rotacao da camera (rad/s)
 #define FISH_SPEED 100.0		// Velocidade do peixe (pixels/s)
+#define AQUARIUM_SIZE 300		// Tamanho do aquário (área de liberdade do peixe)
 
 float camWidth = 640.0;			// Largura da camera (pixels)
 float camHeight = 360.0;		// Altura da camera (pixels)
 float camAspect = camWidth/camHeight;	// Aspecto da camera
 float camAngle = 45.0;			// Angulo da view da camera
 					
-float radius = 300.0;
+float radius = AQUARIUM_SIZE * 1.5;
 float alpha = 0.0;
 
 float camX = 0.0;			// Posicao X da camera
@@ -76,9 +75,11 @@ void update(int value) {
 		verticalMove,
 		horizontalMove * -sin(alpha)
 	);
-	fishFocus.clampX(-90, 90);
-	fishFocus.clampY(-90, 90);
-	fishFocus.clampZ(-90, 90);	
+
+	float clampLimit = (AQUARIUM_SIZE / 2.) - 10.;
+	fishFocus.clampX(-clampLimit, clampLimit);
+	fishFocus.clampY(-clampLimit, clampLimit);
+	fishFocus.clampZ(-clampLimit, clampLimit);	
 
 	deltaBaitX = fishFocus.getX() - prevBaitX;
 	deltaBaitY = fishFocus.getY() - prevBaitY;	
@@ -89,8 +90,7 @@ void update(int value) {
 	prevBaitZ = fishFocus.getZ();	
 
 	// Movimenta o peixe
-	fishHead.multClampedDist(
-		(deltaBaitX + deltaBaitY + deltaBaitZ) ? 1.03 : 0.99, 15, 45);
+	fishHead.multClampedDist( (deltaBaitX + deltaBaitY + deltaBaitZ) ? 1.03 : 0.99, 15, 45 );
 
 	fishHead.updatePosition(); 
 	fishDorsal.updatePosition(); 
@@ -108,7 +108,7 @@ void draw()
 
 	// Aquario
 	glPushMatrix();
-		aquariumModel(200.0);
+	aquariumModel(AQUARIUM_SIZE);
 	glPopMatrix();
 
 	// Isca
@@ -201,7 +201,7 @@ void updateView() {
 	glLoadIdentity();
 
 	gluLookAt(	camX, 	camY, 	camZ,	// Cam-pos
-			0, 0, 0,	// Tar-pos
+			fishFocus.getX(), fishFocus.getY(), fishFocus.getZ(),		// Tar-pos
 			0, 	1, 	0	// Normal
 		);
 
