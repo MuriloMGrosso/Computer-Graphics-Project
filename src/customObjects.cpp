@@ -4,9 +4,51 @@
 
 void fishHeadModel(float s)
 {
+GLfloat head[] = {
+    // Front face
+    -0.5f, -0.5f,  0.5f,
+     0.5f, -0.5f,  0.5f,
+     0.5f,  0.5f,  0.5f,
+    -0.5f,  0.5f,  0.5f,
+
+    // Back face
+    -0.5f, -0.5f, -0.5f,
+     0.5f, -0.5f, -0.5f,
+     0.5f,  0.5f, -0.5f,
+    -0.5f,  0.5f, -0.5f,
+
+    // Left face
+    -0.5f, -0.5f, -0.5f,
+    -0.5f, -0.5f,  0.5f,
+    -0.5f,  0.5f,  0.5f,
+    -0.5f,  0.5f, -0.5f,
+
+    // Right face
+     0.5f, -0.5f, -0.5f,
+     0.5f, -0.5f,  0.5f,
+     0.5f,  0.5f,  0.5f,
+     0.5f,  0.5f, -0.5f,
+
+    // Top face
+    -0.5f,  0.5f, -0.5f,
+    -0.5f,  0.5f,  0.5f,
+     0.5f,  0.5f,  0.5f,
+     0.5f,  0.5f, -0.5f,
+
+    // Bottom face
+    -0.5f, -0.5f, -0.5f,
+    -0.5f, -0.5f,  0.5f,
+     0.5f, -0.5f,  0.5f,
+     0.5f, -0.5f, -0.5f
+};
+
 	glColor4f(1.0, 0.3, 0.0, 1.);
+	glPushMatrix();
 	glScalef(s, s, s);
+	glVertexPointer(3, GL_FLOAT, 0, head);
+	glDrawArrays(GL_QUADS, 0, 24);
 	glutSolidTetrahedron();
+	glPopMatrix();
 }
 
 void fishDorsalModel(float s)
