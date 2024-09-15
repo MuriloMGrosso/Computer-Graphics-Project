@@ -14,6 +14,7 @@
 #include <GL/gl.h>
 #include "input.h"
 #include "segment.h"
+#include "customObjects.h"
 				
 #define FPS 60				// Frames por segundo
 #define DELTA_TIME 1.0/FPS		// Tempo por frame, em segundos
@@ -32,8 +33,8 @@ float camX = 0.0;			// Posicao X da camera
 float camY = 0.0;			// Posicao Y da camera
 float camZ = radius;			// Posicao Z da camera
 
-Segment fishFocus(NULL, 	50);	// O que o peixe segue
-Segment fishHead(&fishFocus, 	20);	// Cabeca do peixe
+Segment fishFocus(NULL,		 0);	// O que o peixe segue
+Segment fishHead(&fishFocus, 	50);	// Cabeca do peixe
 Segment fishDorsal(&fishHead, 	20);	// Corpo do peixe
 Segment fishTail(&fishDorsal, 	20);	// Cauda do peixe
 
@@ -50,8 +51,9 @@ void mouseManager(int button, int state, int x, int y)
 		case 0: pos -= 0.1; camX = radius * sin(pos); camZ = radius * cos(pos); break; 	// Botao esq
 		case 1: break;									// Botao meio
 		case 2: pos += 0.1; camX = radius * sin(pos); camZ = radius * cos(pos); break; 	// Botao dir
-		case 3: camAngle *= 0.95; 	break;	// Wheel up
-		case 4: camAngle *= 1.05; 	break;	// Wheel down
+		
+		case 3:	camAngle = camAngle < 10 ? 10 : camAngle > 140 ? 140 : camAngle * 0.95; break;	// Wheel up									
+		case 4: camAngle = camAngle < 10 ? 10 : camAngle > 140 ? 140 : camAngle * 1.05; break;	// Wheel down
 	}
 }
 
@@ -89,8 +91,12 @@ void update(int value) {
 	if(Z > 90) fishFocus.translate(0, 0, 90 - Z);
 	if(Z < -90) fishFocus.translate(0, 0, -90 - Z);
 
+	if(input::getHorizontalAxis() + input::getVerticalAxis() + input::getDepthAxis()) { fishHead.updateDist(1.03, 15.); } // O peixe se aproxima...
+
 	fishHead.updatePosition(); fishDorsal.updatePosition(); fishTail.updatePosition(); // Atualizar posicoes
 
+	fishHead.updateDist(.99, 15.);
+	
 	// Atualiza a view e chama o proximo frame
 	glutTimerFunc(DELTA_TIME * 1000, update, value + 1);
 	updateView();
@@ -125,7 +131,7 @@ void draw()
 		glRotatef(fishHead.getRotationX(), 1, 0, 0);
 		glRotatef(fishHead.getRotationY(), 0, 1, 0);
 		glRotatef(fishHead.getRotationZ(), 0, 0, 1);
-		glutWireCube(20.0);
+		fishSeg1(20.0);
 	glPopMatrix();
 
 	// Corpo do peixe
@@ -138,7 +144,7 @@ void draw()
 		glRotatef(fishDorsal.getRotationX(), 1, 0, 0);
 		glRotatef(fishDorsal.getRotationY(), 0, 1, 0);
 		glRotatef(fishDorsal.getRotationZ(), 0, 0, 1);
-		glutWireCube(20.0);
+		fishSeg2(20.0);
 	glPopMatrix();
 
 	// Cauda do peixe
@@ -151,7 +157,7 @@ void draw()
 		glRotatef(fishTail.getRotationX(), 1, 0, 0);
 		glRotatef(fishTail.getRotationY(), 0, 1, 0);
 		glRotatef(fishTail.getRotationZ(), 0, 0, 1);
-		glutWireCube(20.0);
+		fishSeg3(20.0);
 	glPopMatrix();
 
 	glutSwapBuffers();

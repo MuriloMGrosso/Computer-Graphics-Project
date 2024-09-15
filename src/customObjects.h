@@ -1,6 +1,27 @@
 #include <GL/glut.h>
 #include <GL/gl.h>
-		
+
+void fishSeg1(float s)
+{
+	glPushMatrix();
+	glScalef(s, s, s);
+	glutSolidTetrahedron();
+	glPopMatrix();
+}
+
+void fishSeg2(float s)
+{
+	glutSolidCube(s);
+}
+
+void fishSeg3(float s)
+{
+	glPushMatrix();
+	glScalef(0.5 * s, 2. * s, 0.5 * s);
+	glutSolidTetrahedron();
+	glPopMatrix();
+}
+
 void castle(float x, float y, float z, float scale, float rotationX, float rotationY, float rotationZ) 
 {
 	glPushMatrix();

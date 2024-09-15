@@ -39,3 +39,5 @@ float Segment::getZ() { return z; }
 float Segment::getRotationX() { return rotX; }
 float Segment::getRotationY() { return rotY; }
 float Segment::getRotationZ() { return rotZ; }
+
+void Segment::updateDist(float dif, float minDist) { this->dist = this->dist < minDist ? minDist : this->dist > 3 * minDist ? 3 * minDist: this->dist * dif; }

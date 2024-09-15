@@ -10,19 +10,20 @@ class Segment
 		float x, y, z;
 		float rotX, rotY, rotZ;
 
-public:
-    Segment(Segment* target, float dist);
+	public:
+    		Segment(Segment* target, float dist);
+		void updatePosition();
+		void translate(float x, float y, float z);
 
-    void updatePosition();
-    void translate(float x, float y, float z);
+		float getX();
+		float getY();
+		float getZ();
 
-    float getX();
-    float getY();
-    float getZ();
+		float getRotationX();
+		float getRotationY();
+		float getRotationZ();
 
-    float getRotationX();
-    float getRotationY();
-    float getRotationZ();
+		void updateDist(float dist, float minDist);
 };
 
 #endif
