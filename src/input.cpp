@@ -24,6 +24,25 @@ void input::specialKeysUp(int key, int x, int y)
     pressedSpecialKeys[key] = false;
 }
 
+void input::mouseManager(int button, int state, int x, int y) {
+    switch(button)
+    {
+        case 0:
+        case 1:
+        case 2:
+            pressedMouse[button] = state == GLUT_DOWN;
+            break;
+        case 3:
+            if(state == GLUT_DOWN)
+                mouseWheelCount--;
+            break;
+        case 4:
+            if(state == GLUT_DOWN) 
+                mouseWheelCount++;
+            break;
+    }
+}
+
 bool input::isKeyPressed(unsigned char key) 
 {
     return pressedKeys[(int)key];
@@ -34,18 +53,25 @@ bool input::isSpecialKeyPressed(int key)
     return pressedSpecialKeys[key];
 }
 
+bool input::isMouseButtonPressed(int button)
+{
+    return pressedMouse[button];
+}
+
 bool input::isUpPressed() 
 {
     return 
         input::isKeyPressed('w') ||
-        input::isKeyPressed('W');
+        input::isKeyPressed('W') ||
+        input::isSpecialKeyPressed(GLUT_KEY_UP);
 }
 
 bool input::isDownPressed() 
 {
     return 
         input::isKeyPressed('s') || 
-        input::isKeyPressed('S');
+        input::isKeyPressed('S') ||
+        input::isSpecialKeyPressed(GLUT_KEY_DOWN);
 }
 
 bool input::isLeftPressed() 
@@ -66,14 +92,12 @@ bool input::isRightPressed()
 
 bool input::isForwardPressed() 
 {
-    return 
-        input::isSpecialKeyPressed(GLUT_KEY_UP);
+    return false;
 }
 
 bool input::isBackwardPressed() 
 {
-    return 
-        input::isSpecialKeyPressed(GLUT_KEY_DOWN);
+    return false;
 }
 
 
@@ -93,7 +117,30 @@ short input::getVerticalAxis()
 
 short input::getDepthAxis()
 {
-    if(input::isForwardPressed() && !input::isBackwardPressed())  return -1;
+    if(input::isForwardPressed() && !input::isBackwardPressed()) return -1;
     if(!input::isForwardPressed() && input::isBackwardPressed()) return 1;
     return 0;
+}
+
+short input::getMouseButtonAxis()
+{
+    if(pressedMouse[GLUT_LEFT_BUTTON] && !pressedMouse[GLUT_RIGHT_BUTTON]) return -1;
+    if(!pressedMouse[GLUT_LEFT_BUTTON] && pressedMouse[GLUT_RIGHT_BUTTON]) return 1;
+    return 0;
+}
+
+short input::getMouseWheel()
+{
+    if(mouseWheelCount > 0)
+    {
+        mouseWheelCount--;
+        return 1;
+    }
+    else if(mouseWheelCount < 0) 
+    {
+        mouseWheelCount++;
+        return -1;
+    }
+    else
+        return 0;
 }

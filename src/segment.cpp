@@ -29,15 +29,24 @@ void Segment::updatePosition()
 
 void Segment::translate(float x, float y, float z) 
 {
-    this->x += x; this->y += y; this->z += z;
+    this->x += x; 
+    this->y += y; 
+    this->z += z;
 }
 
 float Segment::getX() { return x; }
 float Segment::getY() { return y; }
 float Segment::getZ() { return z; }
 
+void Segment::clampX(float min, float max) { x = x < min ? min : x > max ? max : x; }
+void Segment::clampY(float min, float max) { y = y < min ? min : y > max ? max : y; }
+void Segment::clampZ(float min, float max) { z = z < min ? min : z > max ? max : z; }
+
+void Segment::multClampedDist(float value, float minDist, float maxDist) 
+{ 
+    dist = dist < minDist ? minDist : dist > maxDist ? maxDist : dist * value; 
+}
+
 float Segment::getRotationX() { return rotX; }
 float Segment::getRotationY() { return rotY; }
 float Segment::getRotationZ() { return rotZ; }
-
-void Segment::updateDist(float dif, float minDist) { this->dist = this->dist < minDist ? minDist : this->dist > 3 * minDist ? 3 * minDist: this->dist * dif; }
