@@ -13,7 +13,7 @@
 #include <GL/glut.h>
 #include <GL/gl.h>
 
-#include "libpack.h"
+#include "../includes/libpack.h"
 				
 #define FPS 60				// Frames por segundo
 #define DELTA_TIME 1.0/FPS		// Tempo por frame, em segundos
@@ -109,19 +109,6 @@ void draw()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	// Isca
-	glColor4f(1, 0, 0.8, 1);
-	glPushMatrix();
-		glTranslatef(
-			fishFocus.getX(), 
-			fishFocus.getY(), 
-			fishFocus.getZ());
-		glRotatef(fishFocus.getRotationX(), 0, 0, 1);
-		glRotatef(fishFocus.getRotationY(), 0, 1, 0);
-		glRotatef(fishFocus.getRotationZ(), 1, 0, 0);
-		baitModel(5.0);
-	glPopMatrix();
-
 	// Cabeca do peixe
 	glPushMatrix();
 		glTranslatef(
@@ -164,7 +151,23 @@ void draw()
 	aquariumModel(AQUARIUM_SIZE);
 	glPopMatrix();
 	glDepthMask(GL_TRUE);
+	
+	// Isca
+	glPushMatrix();	
+		glTranslatef(
+			fishFocus.getX(), 
+			fishFocus.getY(), 
+			fishFocus.getZ());
+		glRotatef(fishFocus.getRotationX(), 0, 0, 1);
+		glRotatef(fishFocus.getRotationY(), 0, 1, 0);
+		glRotatef(fishFocus.getRotationZ(), 1, 0, 0);
+		baitModel(5.0, fishFocus.getX(), fishFocus.getY(), fishFocus.getZ(), AQUARIUM_SIZE);
+	glPopMatrix();
 
+	// Isca
+	glPushMatrix();
+		castleModel(0, 0, 0, 10, 0, 0, 0);
+	glPopMatrix();
 	glutSwapBuffers();
 }
 

@@ -1,52 +1,12 @@
-#include "libpack.h"
+#include "../includes/libpack.h"
 #include <GL/glut.h>
 #include <GL/gl.h>
 
 void fishHeadModel(float s)
 {
-GLfloat head[] = {
-    // Front face
-    -0.5f, -0.5f,  0.5f,
-     0.5f, -0.5f,  0.5f,
-     0.5f,  0.5f,  0.5f,
-    -0.5f,  0.5f,  0.5f,
-
-    // Back face
-    -0.5f, -0.5f, -0.5f,
-     0.5f, -0.5f, -0.5f,
-     0.5f,  0.5f, -0.5f,
-    -0.5f,  0.5f, -0.5f,
-
-    // Left face
-    -0.5f, -0.5f, -0.5f,
-    -0.5f, -0.5f,  0.5f,
-    -0.5f,  0.5f,  0.5f,
-    -0.5f,  0.5f, -0.5f,
-
-    // Right face
-     0.5f, -0.5f, -0.5f,
-     0.5f, -0.5f,  0.5f,
-     0.5f,  0.5f,  0.5f,
-     0.5f,  0.5f, -0.5f,
-
-    // Top face
-    -0.5f,  0.5f, -0.5f,
-    -0.5f,  0.5f,  0.5f,
-     0.5f,  0.5f,  0.5f,
-     0.5f,  0.5f, -0.5f,
-
-    // Bottom face
-    -0.5f, -0.5f, -0.5f,
-    -0.5f, -0.5f,  0.5f,
-     0.5f, -0.5f,  0.5f,
-     0.5f, -0.5f, -0.5f
-};
-
-	glColor4f(1.0, 0.3, 0.0, 1.);
 	glPushMatrix();
+	glColor4f(1.0, 0.3, 0.0, 1.);
 	glScalef(s, s, s);
-	glVertexPointer(3, GL_FLOAT, 0, head);
-	glDrawArrays(GL_QUADS, 0, 24);
 	glutSolidTetrahedron();
 	glPopMatrix();
 }
@@ -60,44 +20,70 @@ void fishDorsalModel(float s)
 void fishTailModel(float s)
 {
 	glColor4f(1.0, 0.4, 0.0, 1.);
-	glScalef(0.5 * s, 2. * s, 0.5 * s);
+	glScalef(.5 * s, .5 * s, 2. * s);
 	glutSolidTetrahedron();
 }
 
-void castleModel(float x, float y, float z, float scale, float rotationX, float rotationY, float rotationZ) 
+void castleModel(
+			float x, float y, float z, 
+			float scale, 
+			float rotationX, float rotationY, float rotationZ
+		) 
 {
 	glTranslatef(x, y, z);
+	
 	glScalef(scale, scale, scale);
+	
 	glRotatef(rotationX, 1.0f, 0.0f, 0.0f);
 	glRotatef(rotationY, 0.0f, 1.0f, 0.0f);
 	glRotatef(rotationZ, 0.0f, 0.0f, 1.0f);
 	
-	GLfloat vertices[] = {
-		-50.0f, -50.0f, -150.0f, // Vertex 0
-		-50.0f, 50.0f, -150.0f, // Vertex 1
-		50.0f, -50.0f, -150.0f, // Vertex 2
-		50.0f, 50.0f, -150.0f  // Vertex 3
-	};
+    	GLfloat walls[] = {216.0 / 255.0, 25.0 / 255.0f, 178.0 / 255.0, 1.};
+	glColor4fv(walls);
 
-	GLubyte indices[] = {
-		0, 1, 2, // Face 1
-		0, 1, 3, // Face 2
-		1, 2, 3, // Face 3
-		2, 0, 3  // Face 4
-	};
-    
-	glBegin(GL_TRIANGLES);
-	for (int i = 0; i < sizeof(indices)/sizeof(indices[0]); i += 3) {
-		glVertex3fv(&vertices[indices[i] * 3]);
-		glVertex3fv(&vertices[indices[i+1] * 3]);
-		glVertex3fv(&vertices[indices[i+2] * 3]);
-	}
+	glBegin(GL_QUADS);
+    	    // Frente
+	    glVertex3f(-1.0, -1.0, 1.0);
+	    glVertex3f(1.0, -1.0, 1.0);
+	    glVertex3f(1.0, 1.0, 1.0);
+	    glVertex3f(-1.0, 1.0, 1.0);
+	
+	    // Tras
+	    glVertex3f(-1.0, -1.0, -1.0);
+	    glVertex3f(1.0, -1.0, -1.0);
+	    glVertex3f(1.0, 1.0, -1.0);
+	    glVertex3f(-1.0, 1.0, -1.0);
+	
+	    // Esquerda
+	    glVertex3f(-1.0, -1.0, -1.0);
+	    glVertex3f(-1.0, -1.0, 1.0);
+	    glVertex3f(-1.0, 1.0, 1.0);
+	    glVertex3f(-1.0, 1.0, -1.0);
+	
+	    // Direita
+	    glVertex3f(1.0, -1.0, -1.0);
+	    glVertex3f(1.0, -1.0, 1.0);
+	    glVertex3f(1.0, 1.0, 1.0);
+	    glVertex3f(1.0, 1.0, -1.0);
+	
+	    // Cima
+	    glVertex3f(-1.0, 1.0, -1.0);
+	    glVertex3f(1.0, 1.0, -1.0);
+	    glVertex3f(1.0, 1.0, 1.0);
+	    glVertex3f(-1.0, 1.0, 1.0);
+	
+	    // Abaixo
+	    glVertex3f(-1.0, -1.0, -1.0);
+	    glVertex3f(1.0, -1.0, -1.0);
+	    glVertex3f(1.0, -1.0, 1.0);
+	    glVertex3f(-1.0, -1.0, 1.0);
+	
 	glEnd();
 }
 
 void aquariumModel(float s) 
 {
-	    glEnable(GL_COLOR_MATERIAL);
+    glEnable(GL_COLOR_MATERIAL);
     glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
  
     // Cores
@@ -163,10 +149,33 @@ void aquariumModel(float s)
     
     // Vidro do Aquario
     glColor4f(1, 1, 1, 0.4);
-    glutWireCube(s);
+    glutWireCube(s); 
+
+    // Areia
+    glPushMatrix();
+  	glTranslatef(0., -s/2., 0.);
+    	glScalef(s, 10, s);
+    	glColor4fv(floorColor);
+	glutSolidCube(1.);
+    glPopMatrix();
 }
 
-void baitModel(float s)
+void baitModel(float s, float x, float y, float z, float ceil)
 {
-	glutWireCube(s);
+	glPushMatrix();
+    		glColor4f(0.5, 0.2, 0.2, 1.);
+		glutSolidSphere(s, 20, 20);
+    		glColor4f(0, 0, 0.1, 0.6);
+		glBegin(GL_LINES);
+			glVertex3f(0, 0, 0);
+			glVertex3f(0, ceil, 0);
+		glEnd();
+	glPopMatrix();
+	
+	glPushMatrix();
+    		glColor4f(1, 1, 1, 0.4);
+		glTranslatef(0., ceil, 0.);
+		glScalef(2., 1., 2.);
+		glutSolidCube(s);
+	glPopMatrix();
 }
