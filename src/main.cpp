@@ -115,9 +115,11 @@ void draw()
 			fishHead.getX(), 
 			fishHead.getY(), 
 			fishHead.getZ());
+
 		glRotatef(fishHead.getRotationX(), 1, 0, 0);
 		glRotatef(fishHead.getRotationY(), 0, 1, 0);
 		glRotatef(fishHead.getRotationZ(), 0, 0, 1);
+
 		fishHeadModel(20.0);
 	glPopMatrix();
 

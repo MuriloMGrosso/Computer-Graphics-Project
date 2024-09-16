@@ -2,24 +2,98 @@
 #include <GL/glut.h>
 #include <GL/gl.h>
 
+#define FISH_HEAD_FACE_LEN 0.2
+#define FISH_HEAD_NECK_LEN 0.8
+#define FISH_HEAD_SIDE_LEN 0.5
+#define FISH_EYE_RADIUS 0.2
+
+#define FISH_COLOR 1.0, 0.5, 0.1, 1.0
+
 void fishHeadModel(float s)
 {
 	glPushMatrix();
-	glColor4f(1.0, 0.3, 0.0, 1.);
+	glColor4f(FISH_COLOR);
 	glScalef(s, s, s);
-	glutSolidTetrahedron();
+
+	// Globo ocular esquerdo
+	glPushMatrix();
+		glColor4f(1.0, 1.0, 1.0, 1.0f);
+		glTranslatef(-(FISH_HEAD_NECK_LEN + FISH_HEAD_FACE_LEN)/2,0,0);
+		glutSolidSphere(FISH_EYE_RADIUS, 16, 16);
+	glPopMatrix();
+
+	// Globo ocular direito
+	glPushMatrix();
+		glColor4f(1.0, 1.0, 1.0, 1.0f);
+		glTranslatef((FISH_HEAD_NECK_LEN + FISH_HEAD_FACE_LEN)/2,0,0);
+		glutSolidSphere(FISH_EYE_RADIUS, 16, 16);
+	glPopMatrix();
+
+	// Pupila direita
+	glPushMatrix();
+		glColor4f(0.0, 0.0, 0.0, 1.0f);
+		glTranslatef((FISH_HEAD_NECK_LEN + FISH_HEAD_FACE_LEN + FISH_EYE_RADIUS * 1.5)/2,0,0);
+		glutSolidSphere(FISH_EYE_RADIUS*0.75, 8, 8);
+	glPopMatrix();
+
+	// Pupila esquerda
+	glPushMatrix();
+		glColor4f(0.0, 0.0, 0.0, 1.0f);
+		glTranslatef(-(FISH_HEAD_NECK_LEN + FISH_HEAD_FACE_LEN + FISH_EYE_RADIUS * 1.5)/2,0,0);
+		glutSolidSphere(FISH_EYE_RADIUS*0.75, 8, 8);
+	glPopMatrix();
+
+	glColor4f(FISH_COLOR);
+	glBegin(GL_QUADS);
+    	// Frente
+	    glVertex3f(-FISH_HEAD_FACE_LEN, -FISH_HEAD_FACE_LEN, FISH_HEAD_SIDE_LEN);
+	    glVertex3f( FISH_HEAD_FACE_LEN, -FISH_HEAD_FACE_LEN, FISH_HEAD_SIDE_LEN);
+	    glVertex3f( FISH_HEAD_FACE_LEN,  FISH_HEAD_FACE_LEN, FISH_HEAD_SIDE_LEN);
+	    glVertex3f(-FISH_HEAD_FACE_LEN,  FISH_HEAD_FACE_LEN, FISH_HEAD_SIDE_LEN);
+	
+	    // Tras
+	    glVertex3f(-FISH_HEAD_NECK_LEN, -FISH_HEAD_NECK_LEN, -FISH_HEAD_SIDE_LEN);
+	    glVertex3f( FISH_HEAD_NECK_LEN, -FISH_HEAD_NECK_LEN, -FISH_HEAD_SIDE_LEN);
+	    glVertex3f( FISH_HEAD_NECK_LEN,  FISH_HEAD_NECK_LEN, -FISH_HEAD_SIDE_LEN);
+	    glVertex3f(-FISH_HEAD_NECK_LEN,  FISH_HEAD_NECK_LEN, -FISH_HEAD_SIDE_LEN);
+	
+	    // Esquerda
+	    glVertex3f(-FISH_HEAD_NECK_LEN, -FISH_HEAD_NECK_LEN, -FISH_HEAD_SIDE_LEN);
+	    glVertex3f(-FISH_HEAD_FACE_LEN, -FISH_HEAD_FACE_LEN,  FISH_HEAD_SIDE_LEN);
+	    glVertex3f(-FISH_HEAD_FACE_LEN,  FISH_HEAD_FACE_LEN,  FISH_HEAD_SIDE_LEN);
+	    glVertex3f(-FISH_HEAD_NECK_LEN,  FISH_HEAD_NECK_LEN, -FISH_HEAD_SIDE_LEN);
+	
+	    // Direita
+	    glVertex3f(FISH_HEAD_NECK_LEN, -FISH_HEAD_NECK_LEN, -FISH_HEAD_SIDE_LEN);
+	    glVertex3f(FISH_HEAD_FACE_LEN, -FISH_HEAD_FACE_LEN,  FISH_HEAD_SIDE_LEN);
+	    glVertex3f(FISH_HEAD_FACE_LEN,  FISH_HEAD_FACE_LEN,  FISH_HEAD_SIDE_LEN);
+	    glVertex3f(FISH_HEAD_NECK_LEN,  FISH_HEAD_NECK_LEN, -FISH_HEAD_SIDE_LEN);
+	
+	    // Cima
+	    glVertex3f(-FISH_HEAD_NECK_LEN, FISH_HEAD_NECK_LEN, -FISH_HEAD_SIDE_LEN);
+	    glVertex3f( FISH_HEAD_NECK_LEN, FISH_HEAD_NECK_LEN, -FISH_HEAD_SIDE_LEN);
+	    glVertex3f( FISH_HEAD_FACE_LEN, FISH_HEAD_FACE_LEN,  FISH_HEAD_SIDE_LEN);
+	    glVertex3f(-FISH_HEAD_FACE_LEN, FISH_HEAD_FACE_LEN,  FISH_HEAD_SIDE_LEN);
+	
+	    // Abaixo
+	    glVertex3f(-FISH_HEAD_NECK_LEN, -FISH_HEAD_NECK_LEN, -FISH_HEAD_SIDE_LEN);
+	    glVertex3f( FISH_HEAD_NECK_LEN, -FISH_HEAD_NECK_LEN, -FISH_HEAD_SIDE_LEN);
+	    glVertex3f( FISH_HEAD_FACE_LEN, -FISH_HEAD_FACE_LEN,  FISH_HEAD_SIDE_LEN);
+	    glVertex3f(-FISH_HEAD_FACE_LEN, -FISH_HEAD_FACE_LEN,  FISH_HEAD_SIDE_LEN);
+	glEnd();
+
 	glPopMatrix();
 }
 
 void fishDorsalModel(float s)
 {
-	glColor4f(0.9, 0.2, 0.0, 1.);
+	glColor4f(FISH_COLOR);
 	glutSolidCube(s);
 }
 
 void fishTailModel(float s)
 {
-	glColor4f(1.0, 0.4, 0.0, 1.);
+	glColor4f(FISH_COLOR);
 	glScalef(.5 * s, .5 * s, 2. * s);
 	glutSolidTetrahedron();
 }
@@ -42,7 +116,7 @@ void castleModel(
 	glColor4fv(walls);
 
 	glBegin(GL_QUADS);
-    	    // Frente
+    	// Frente
 	    glVertex3f(-1.0, -1.0, 1.0);
 	    glVertex3f(1.0, -1.0, 1.0);
 	    glVertex3f(1.0, 1.0, 1.0);
@@ -77,7 +151,6 @@ void castleModel(
 	    glVertex3f(1.0, -1.0, -1.0);
 	    glVertex3f(1.0, -1.0, 1.0);
 	    glVertex3f(-1.0, -1.0, 1.0);
-	
 	glEnd();
 }
 

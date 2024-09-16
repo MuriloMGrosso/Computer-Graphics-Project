@@ -1,5 +1,6 @@
 #include "../includes/libpack.h"
-#include <math.h>
+#include <cmath>
+#include <iostream>
 
 Segment::Segment(Segment* target, float dist) : target(target), dist(dist) {}
 
@@ -22,9 +23,9 @@ void Segment::updatePosition()
     y = target->getY() - (distDif == 0 ? 0 : yDif/distDif * dist);
     z = target->getZ() - (distDif == 0 ? 0 : zDif/distDif * dist);
 
-    rotX = atan(yDif == 0 ? 0 : zDif/yDif) * (180.0 / M_PI);
-    rotY = atan(zDif == 0 ? 0 : xDif/zDif) * (180.0 / M_PI);
-    rotZ = atan(xDif == 0 ? 0 : yDif/xDif) * (180.0 / M_PI);
+    rotX = atan2(zDif, yDif) * (180.0 / M_PI);
+    rotY = atan2(xDif, zDif) * (180.0 / M_PI);
+    rotZ = atan2(yDif, xDif) * (180.0 / M_PI);
 }
 
 void Segment::translate(float x, float y, float z) 
