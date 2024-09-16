@@ -21,6 +21,7 @@
 #define CAM_ROT_SPEED 2.0		// Velocidade de rotacao da camera (rad/s)
 #define FISH_SPEED 100.0		// Velocidade do peixe (pixels/s)
 #define AQUARIUM_SIZE 300		// Tamanho do aquário (área de liberdade do peixe)
+#define FISH_SIZE 20.0			// Tamanho do peixe (cada segmento tem o mesmo tamanho)
 
 float camWidth = 640.0;			// Largura da camera (pixels)
 float camHeight = 360.0;		// Altura da camera (pixels)
@@ -36,10 +37,10 @@ float camZ = radius;			// Posicao Z da camera
 
 float prevBaitX, prevBaitY, prevBaitZ;	// Posicoes anteriores da isca
 
-Segment fishFocus(NULL,		 0);	// O que o peixe segue
-Segment fishHead(&fishFocus, 	50);	// Cabeca do peixe
-Segment fishDorsal(&fishHead, 	20);	// Corpo do peixe
-Segment fishTail(&fishDorsal, 	20);	// Cauda do peixe
+Segment fishFocus(NULL,		 0);		// O que o peixe segue
+Segment fishHead(&fishFocus, 	50);		// Cabeca do peixe
+Segment fishDorsal(&fishHead, 	FISH_SIZE);	// Corpo do peixe
+Segment fishTail(&fishDorsal, 	FISH_SIZE);	// Cauda do peixe
 
 void draw();				// Desenha objetos na cena
 void updateView();			// Inicia e atualiza a view
@@ -120,7 +121,7 @@ void draw()
 		glRotatef(fishHead.getRotationY(), 0, 1, 0);
 		glRotatef(fishHead.getRotationZ(), 0, 0, 1);
 
-		fishHeadModel(20.0);
+		fishHeadModel(FISH_SIZE);
 	glPopMatrix();
 
 	// Corpo do peixe
@@ -132,7 +133,7 @@ void draw()
 		glRotatef(fishDorsal.getRotationX(), 1, 0, 0);
 		glRotatef(fishDorsal.getRotationY(), 0, 1, 0);
 		glRotatef(fishDorsal.getRotationZ(), 0, 0, 1);
-		fishDorsalModel(20.0);
+		fishDorsalModel(FISH_SIZE);
 	glPopMatrix();
 
 	// Cauda do peixe
@@ -144,7 +145,7 @@ void draw()
 		glRotatef(fishTail.getRotationX(), 1, 0, 0);
 		glRotatef(fishTail.getRotationY(), 0, 1, 0);
 		glRotatef(fishTail.getRotationZ(), 0, 0, 1);
-		fishTailModel(20.0);
+		fishTailModel(FISH_SIZE);
 	glPopMatrix();
 	
 	// Aquario
@@ -166,10 +167,13 @@ void draw()
 		baitModel(5.0, fishFocus.getX(), fishFocus.getY(), fishFocus.getZ(), AQUARIUM_SIZE);
 	glPopMatrix();
 
-	// Isca
+	// Castelo
 	glPushMatrix();
-		castleModel(0, 0, 0, 10, 0, 0, 0);
+		castleModel(0, -(AQUARIUM_SIZE / 2) + 20, 0, // X, Y, Z
+			   20, 				     // Escala
+			   0, 0, 0);			     // Rotação
 	glPopMatrix();
+
 	glutSwapBuffers();
 }
 
