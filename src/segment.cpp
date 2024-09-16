@@ -23,9 +23,10 @@ void Segment::updatePosition()
     y = target->getY() - (distDif == 0 ? 0 : yDif/distDif * dist);
     z = target->getZ() - (distDif == 0 ? 0 : zDif/distDif * dist);
 
-    rotX = atan2(zDif, yDif) * (180.0 / M_PI);
+    // Funcional, mas feio...
+    // rotX = atan2(zDif, yDif) * (180.0 / M_PI);
     rotY = atan2(xDif, zDif) * (180.0 / M_PI);
-    rotZ = atan2(yDif, xDif) * (180.0 / M_PI);
+    // rotZ = atan2(yDif, xDif) * (180.0 / M_PI);
 }
 
 void Segment::translate(float x, float y, float z) 
