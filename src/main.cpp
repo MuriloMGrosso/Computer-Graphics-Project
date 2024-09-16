@@ -39,8 +39,8 @@ float prevBaitX, prevBaitY, prevBaitZ;	// Posicoes anteriores da isca
 
 Segment fishFocus(NULL,		 0);		// O que o peixe segue
 Segment fishHead(&fishFocus, 	50);		// Cabeca do peixe
-Segment fishDorsal(&fishHead, 	FISH_SIZE);	// Corpo do peixe
-Segment fishTail(&fishDorsal, 	FISH_SIZE);	// Cauda do peixe
+Segment fishDorsal(&fishHead, 	FISH_SIZE * 1.75);	// Corpo do peixe
+Segment fishTail(&fishDorsal, 	FISH_SIZE * 1.5);	// Cauda do peixe
 
 void draw();				// Desenha objetos na cena
 void updateView();			// Inicia e atualiza a view
@@ -121,6 +121,8 @@ void draw()
 		glRotatef(fishHead.getRotationY(), 0, 1, 0);
 		glRotatef(fishHead.getRotationZ(), 0, 0, 1);
 
+		glTranslatef(0,0,.5 * FISH_SIZE);
+
 		fishHeadModel(FISH_SIZE);
 	glPopMatrix();
 
@@ -130,9 +132,12 @@ void draw()
 			fishDorsal.getX(), 
 			fishDorsal.getY(), 
 			fishDorsal.getZ());
+
 		glRotatef(fishDorsal.getRotationX(), 1, 0, 0);
 		glRotatef(fishDorsal.getRotationY(), 0, 1, 0);
 		glRotatef(fishDorsal.getRotationZ(), 0, 0, 1);
+		glTranslatef(0,0,1 * FISH_SIZE);
+
 		fishDorsalModel(FISH_SIZE);
 	glPopMatrix();
 
@@ -142,9 +147,13 @@ void draw()
 			fishTail.getX(), 
 			fishTail.getY(), 
 			fishTail.getZ());
+
 		glRotatef(fishTail.getRotationX(), 1, 0, 0);
 		glRotatef(fishTail.getRotationY(), 0, 1, 0);
 		glRotatef(fishTail.getRotationZ(), 0, 0, 1);
+
+		glTranslatef(0,0,1.5 * FISH_SIZE);
+
 		fishTailModel(FISH_SIZE);
 	glPopMatrix();
 	
