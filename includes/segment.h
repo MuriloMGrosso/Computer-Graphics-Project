@@ -13,7 +13,7 @@ class Segment
 		float dist;		// Distancia ate o alvo
 
 		float x, y, z;		// Coordenadas
-		float rotX, rotY, rotZ;		// Rotacoes (graus)
+		float rotY, rotXZ;		// Rotacoes (graus)
 
 	public:
     	Segment(Segment* target, float dist);		// Construtor
@@ -31,9 +31,8 @@ class Segment
 		
 		void multClampedDist(float value, float minDist, float maxDist);	// Multiplica a distancia dentro dos limites permitidos
 		
-		float getRotationX();	// Retorna rotacao em X
-		float getRotationY();	// Retorna rotacao em Y
-		float getRotationZ();	// Retorna rotacao em Z
+		float getRotationY();	// Retorna rotacao em X
+		float getRotationXZ();	// Retorna rotacao em X e Z
 };
 
 #endif

@@ -23,10 +23,8 @@ void Segment::updatePosition()
     y = target->getY() - (distDif == 0 ? 0 : yDif/distDif * dist);
     z = target->getZ() - (distDif == 0 ? 0 : zDif/distDif * dist);
 
-    // Funcional, mas feio...
-    // rotX = atan2(zDif, yDif) * (180.0 / M_PI);
     rotY = atan2(xDif, zDif) * (180.0 / M_PI);
-    // rotZ = atan2(yDif, xDif) * (180.0 / M_PI);
+    rotXZ = -asin(distDif == 0 ? 0 : yDif/distDif) * (180.0 / M_PI);
 }
 
 void Segment::translate(float x, float y, float z) 
@@ -49,6 +47,5 @@ void Segment::multClampedDist(float value, float minDist, float maxDist)
     dist = dist < minDist ? minDist : dist > maxDist ? maxDist : dist * value; 
 }
 
-float Segment::getRotationX() { return rotX; }
 float Segment::getRotationY() { return rotY; }
-float Segment::getRotationZ() { return rotZ; }
+float Segment::getRotationXZ() { return rotXZ; }

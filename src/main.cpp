@@ -117,9 +117,8 @@ void draw()
 			fishHead.getY(), 
 			fishHead.getZ());
 
-		glRotatef(fishHead.getRotationX(), 1, 0, 0);
 		glRotatef(fishHead.getRotationY(), 0, 1, 0);
-		glRotatef(fishHead.getRotationZ(), 0, 0, 1);
+		glRotatef(fishHead.getRotationXZ(), 1, 0, 0);
 
 		glTranslatef(0,0,.5 * FISH_SIZE);
 
@@ -133,11 +132,10 @@ void draw()
 			fishDorsal.getY(), 
 			fishDorsal.getZ());
 
-		glRotatef(fishDorsal.getRotationX(), 1, 0, 0);
 		glRotatef(fishDorsal.getRotationY(), 0, 1, 0);
-		glRotatef(fishDorsal.getRotationZ(), 0, 0, 1);
-		glTranslatef(0,0,1 * FISH_SIZE);
+		glRotatef(fishDorsal.getRotationXZ(), 1, 0, 0);
 
+		glTranslatef(0,0,1 * FISH_SIZE);
 		fishDorsalModel(FISH_SIZE);
 	glPopMatrix();
 
@@ -148,12 +146,10 @@ void draw()
 			fishTail.getY(), 
 			fishTail.getZ());
 
-		glRotatef(fishTail.getRotationX(), 1, 0, 0);
 		glRotatef(fishTail.getRotationY(), 0, 1, 0);
-		glRotatef(fishTail.getRotationZ(), 0, 0, 1);
+		glRotatef(fishTail.getRotationXZ(), 1, 0, 0);
 
 		glTranslatef(0,0,1.5 * FISH_SIZE);
-
 		fishTailModel(FISH_SIZE);
 	glPopMatrix();
 	
@@ -170,9 +166,10 @@ void draw()
 			fishFocus.getX(), 
 			fishFocus.getY(), 
 			fishFocus.getZ());
-		glRotatef(fishFocus.getRotationX(), 0, 0, 1);
+
 		glRotatef(fishFocus.getRotationY(), 0, 1, 0);
-		glRotatef(fishFocus.getRotationZ(), 1, 0, 0);
+		glRotatef(fishFocus.getRotationXZ(), 1, 0, 0);
+
 		baitModel(5.0, fishFocus.getX(), fishFocus.getY(), fishFocus.getZ(), AQUARIUM_SIZE);
 	glPopMatrix();
 
