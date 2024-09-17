@@ -20,7 +20,7 @@
 #define CAM_MOVE_SPEED 100.0		// Velocidade de movimento da camera (pixels/s)
 #define CAM_ROT_SPEED 2.0		// Velocidade de rotacao da camera (rad/s)
 #define FISH_SPEED 100.0		// Velocidade do peixe (pixels/s)
-#define AQUARIUM_SIZE 300		// Tamanho do aquário (área de liberdade do peixe)
+#define AQUARIUM_SIZE 500		// Tamanho do aquário (área de liberdade do peixe)
 #define FISH_SIZE 20.0			// Tamanho do peixe (cada segmento tem o mesmo tamanho)
 
 float camWidth = 640.0;			// Largura da camera (pixels)
@@ -64,7 +64,7 @@ void update(int value) {
 	camX = radius * sin(alpha); 
 	camZ = radius * cos(alpha);
 	camAngle += input::getMouseWheel() * CAM_MOVE_SPEED * DELTA_TIME;
-	camAngle = camAngle < 10 ? 10 : camAngle > 140 ? 140 : camAngle;
+	camAngle = camAngle < 5 ? 5 : camAngle > 100 ? 100 : camAngle;
 
 	// Movimentacao da isca
 	horizontalMove = input::getHorizontalAxis() * FISH_SPEED * DELTA_TIME;
@@ -77,7 +77,7 @@ void update(int value) {
 		horizontalMove * -sin(alpha)
 	);
 
-	float clampLimit = (AQUARIUM_SIZE / 2.) - 10.;
+	float clampLimit = (AQUARIUM_SIZE / 2.) - 30.;
 	fishFocus.clampX(-clampLimit, clampLimit);
 	fishFocus.clampY(-clampLimit, clampLimit);
 	fishFocus.clampZ(-clampLimit, clampLimit);	
@@ -91,7 +91,7 @@ void update(int value) {
 	prevBaitZ = fishFocus.getZ();	
 
 	// Movimenta o peixe
-	fishHead.multClampedDist( (deltaBaitX + deltaBaitY + deltaBaitZ) ? 1.03 : 0.99, 15, 45 );
+	fishHead.multClampedDist( (deltaBaitX + deltaBaitY + deltaBaitZ) > 0 ? 1.05 : 0.99, 15, 60 );
 
 	fishHead.updatePosition(); 
 	fishDorsal.updatePosition(); 
@@ -109,6 +109,8 @@ void draw()
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	skyBox("resources/skybox.bmp");
 
 	// Cabeca do peixe
 	glPushMatrix();
@@ -153,13 +155,6 @@ void draw()
 		fishTailModel(FISH_SIZE);
 	glPopMatrix();
 	
-	// Aquario
-	glDepthMask(GL_FALSE);
-	glPushMatrix();
-	aquariumModel(AQUARIUM_SIZE);
-	glPopMatrix();
-	glDepthMask(GL_TRUE);
-	
 	// Isca
 	glPushMatrix();	
 		glTranslatef(
@@ -171,7 +166,7 @@ void draw()
 		glRotatef(fishFocus.getRotationXZ(), 1, 0, 0);
 
 		baitModel(5.0, fishFocus.getX(), fishFocus.getY(), fishFocus.getZ(), AQUARIUM_SIZE);
-	glPopMatrix();
+	glPopMatrix();	
 
 	// Castelo
 	glPushMatrix();
@@ -179,6 +174,13 @@ void draw()
 			   20, 				     // Escala
 			   0, 0, 0);			     // Rotação
 	glPopMatrix();
+
+	// Aquario
+	glDepthMask(GL_FALSE);
+		glPushMatrix();
+			aquariumModel(AQUARIUM_SIZE);
+		glPopMatrix();
+	glDepthMask(GL_TRUE);
 
 	glutSwapBuffers();
 }
@@ -213,12 +215,13 @@ void start(int argc, char **argv) {
 	glutMainLoop();
 }
 
+
 void updateView() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(camAngle, camAspect, 0.1, 1000);
+	gluPerspective(camAngle, camAspect, 0.1, 3000);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();

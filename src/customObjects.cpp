@@ -1,6 +1,10 @@
 #include "../includes/libpack.h"
 #include <GL/glut.h>
 #include <GL/gl.h>
+#include <cstdio>
+#include <cmath>
+#include <cstring>
+#include <iostream>
 
 #define FISH_COLOR 1.0, 0.5, 0.1, 1.0
 #define FISH_SHADOW 0.8, 0.3, 0.0, 1.0
@@ -263,9 +267,18 @@ void aquariumModel(float s)
     glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
  
     // Cores
-    GLfloat topColor[] 	  = {116.0 / 255.0, 225.0 / 255.0f, 178.0 / 255.0, 0.4};
-    GLfloat bottomColor[] = { 34.0 / 255.0,  68.0 / 255.0f, 164.0 / 255.0, 0.4};
-    GLfloat floorColor[]  = {239.0 / 255.0, 214.0 / 255.0f, 177.0 / 255.0, 1.0};
+    GLfloat topColor[] 	  = {116.0 / 255.0, 225.0 / 255.0, 178.0 / 255.0, 0.4};
+    GLfloat bottomColor[] = { 34.0 / 255.0,  68.0 / 255.0, 164.0 / 255.0, 0.4};
+    GLfloat floorColor[]  = {239.0 / 255.0, 214.0 / 255.0, 177.0 / 255.0, 1.0};
+    GLfloat tableColor[]  = {145.0 / 255.0,  67.0 / 255.0,  29.0 / 255.0, 1.0};
+    
+    // Mesa
+    glPushMatrix();
+  	glTranslatef(0., -(10 + (s/2.)), 0.);
+    	glScalef(s * 1.3, 10, s * 1.3);
+    	glColor4fv(tableColor);
+	glutSolidCube(1.);
+    glPopMatrix();
 
     // Aquário
     glPushMatrix();
@@ -339,20 +352,100 @@ void aquariumModel(float s)
 void baitModel(float s, float x, float y, float z, float ceil)
 {
 	glPushMatrix();
-		// glTranslatef(0, 0.2, 0.5);
     		glColor4f(0.5, 0.2, 0.2, 1.);
 		glutSolidSphere(s, 20, 20);
-    		glColor4f(0, 0, 0.1, 0.6);
-		glBegin(GL_LINES);
-			glVertex3f(0, 0, 0);
-			glVertex3f(0, ceil, 0);
-		glEnd();
-	glPopMatrix();
-	
-	glPushMatrix();
-    		glColor4f(1, 1, 1, 0.4);
-		glTranslatef(0., ceil, 0.);
-		glScalef(2., 1., 2.);
-		glutSolidCube(s);
 	glPopMatrix();
 }
+
+unsigned char* loadBMP(std::string filepath, int* width, int* height) {
+    	FILE* file = fopen(filepath.c_str(), "rb");
+    	if (!file) {
+        	printf("Failed to open file: %s\n", filepath.c_str());
+        	return nullptr;
+    	}
+
+    	unsigned char header[54];
+    	fread(header, sizeof(unsigned char), 54, file);
+
+    	*width = *(int*)&header[18];
+    	*height = *(int*)&header[22];
+
+    	int imageSize = 3 * (*width) * (*height); 
+    	unsigned char* data = new unsigned char[imageSize];
+    	fread(data, sizeof(unsigned char), imageSize, file); 
+    	fclose(file);
+
+	for (int i = 0; i < imageSize; i += 3) {
+	    unsigned char temp = data[i];
+	    data[i] = data[i + 2];
+	    data[i + 2] = temp;
+	}
+
+    	return data;
+}
+
+void skyBox(std::string filepath) {
+    	int width, height;
+    	unsigned char* data = loadBMP(filepath, &width, &height);
+
+    	if (!data) { return; }
+
+    	GLuint textureID;
+    	glGenTextures(1, &textureID);
+    	glBindTexture(GL_TEXTURE_2D, textureID);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    	gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
+
+    	delete[] data;
+
+    	glEnable(GL_TEXTURE_2D);
+    	glBindTexture(GL_TEXTURE_2D, textureID);
+
+    	glBegin(GL_QUADS);
+    		// Frente // L2C2
+    		glTexCoord2f(0.25f, 0.33f); glVertex3f(-1000.0f, -1000.0f, 1000.0f);  
+    		glTexCoord2f(0.5f, 0.33f);  glVertex3f(1000.0f, -1000.0f, 1000.0f);   
+    		glTexCoord2f(0.5f, 0.66f);  glVertex3f(1000.0f, 1000.0f, 1000.0f);    
+    		glTexCoord2f(0.25f, 0.66f); glVertex3f(-1000.0f, 1000.0f, 1000.0f);   
+
+    		// Tras // L2C4
+    		glTexCoord2f(0.75f, 0.33f); glVertex3f(1000.0f, -1000.0f, -1000.0f);  
+    		glTexCoord2f(1.0f, 0.33f);  glVertex3f(-1000.0f, -1000.0f, -1000.0f); 
+    		glTexCoord2f(1.0f, 0.66f);  glVertex3f(-1000.0f, 1000.0f, -1000.0f);  
+    		glTexCoord2f(0.75f, 0.66f); glVertex3f(1000.0f, 1000.0f, -1000.0f);   
+
+    		// Esquerda // L2C1
+    		glTexCoord2f(0.0f, 0.33f);  glVertex3f(-1000.0f, -1000.0f, -1000.0f); 
+    		glTexCoord2f(0.25f, 0.33f); glVertex3f(-1000.0f, -1000.0f, 1000.0f);  
+    		glTexCoord2f(0.25f, 0.66f); glVertex3f(-1000.0f, 1000.0f, 1000.0f);   
+    		glTexCoord2f(0.0f, 0.66f);  glVertex3f(-1000.0f, 1000.0f, -1000.0f);  
+
+    		// Direita // L2C3
+    		glTexCoord2f(0.5f, 0.33f);  glVertex3f(1000.0f, -1000.0f, 1000.0f);   
+    		glTexCoord2f(0.75f, 0.33f); glVertex3f(1000.0f, -1000.0f, -1000.0f);  
+    		glTexCoord2f(0.75f, 0.66f); glVertex3f(1000.0f, 1000.0f, -1000.0f);   
+    		glTexCoord2f(0.5f, 0.66f);  glVertex3f(1000.0f, 1000.0f, 1000.0f);    
+
+    		// Cima // L1C2
+    		glTexCoord2f(0.25f, 0.66f); glVertex3f(-1000.0f, 1000.0f, 1000.0f);   
+    		glTexCoord2f(0.5f, 0.66f);  glVertex3f(1000.0f, 1000.0f, 1000.0f);    
+   		glTexCoord2f(0.5f, 1.0f);   glVertex3f(1000.0f, 1000.0f, -1000.0f);   
+    		glTexCoord2f(0.25f, 1.0f);  glVertex3f(-1000.0f, 1000.0f, -1000.0f);  
+
+    		// Baixo // L3C2
+    		glTexCoord2f(0.25f, 0.0f);  glVertex3f(-1000.0f, -1000.0f, -1000.0f); 
+    		glTexCoord2f(0.5f, 0.0f);   glVertex3f(1000.0f, -1000.0f, -1000.0f);  
+    		glTexCoord2f(0.5f, 0.33f);  glVertex3f(1000.0f, -1000.0f, 1000.0f);   
+    		glTexCoord2f(0.25f, 0.33f); glVertex3f(-1000.0f, -1000.0f, 1000.0f);  
+
+    	glEnd();
+
+    	glDisable(GL_TEXTURE_2D);
+}
+
