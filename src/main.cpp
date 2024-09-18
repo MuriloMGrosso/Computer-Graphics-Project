@@ -37,10 +37,10 @@ float camZ = radius;			// Posicao Z da camera
 
 float prevBaitX, prevBaitY, prevBaitZ;	// Posicoes anteriores da isca
 
-Segment fishFocus(NULL,		 0);		// O que o peixe segue
-Segment fishHead(&fishFocus, 	50);		// Cabeca do peixe
-Segment fishDorsal(&fishHead, 	FISH_SIZE * 1.75);	// Corpo do peixe
-Segment fishTail(&fishDorsal, 	FISH_SIZE * 1.5);	// Cauda do peixe
+Segment fishFocus(NULL,	0, 1);		// O que o peixe segue
+Segment fishHead(&fishFocus, 50, 0.02);		// Cabeca do peixe
+Segment fishDorsal(&fishHead, 	FISH_SIZE * 1.75, 1);	// Corpo do peixe
+Segment fishTail(&fishDorsal, 	FISH_SIZE * 1.5, 1);	// Cauda do peixe
 
 void draw();				// Desenha objetos na cena
 void updateView();			// Inicia e atualiza a view
@@ -91,8 +91,6 @@ void update(int value) {
 	prevBaitZ = fishFocus.getZ();	
 
 	// Movimenta o peixe
-	fishHead.multClampedDist( (deltaBaitX + deltaBaitY + deltaBaitZ) > 0 ? 1.05 : 0.99, 15, 60 );
-
 	fishHead.updatePosition(); 
 	fishDorsal.updatePosition(); 
 	fishTail.updatePosition();

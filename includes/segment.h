@@ -14,9 +14,10 @@ class Segment
 
 		float x, y, z;		// Coordenadas
 		float rotY, rotXZ;		// Rotacoes (graus)
+		float lerp;
 
 	public:
-    	Segment(Segment* target, float dist);		// Construtor
+    	Segment(Segment* target, float dist, float lerp);		// Construtor
 
 		void updatePosition();		// Atualiza a posicao do segmento
 		void translate(float x, float y, float z);		// Movimenta o segmento
@@ -28,8 +29,6 @@ class Segment
 		void clampX(float min, float max);		// Define o lower e upper bounds de X 
 		void clampY(float min, float max);		// Define o lower e upper bounds de Y
 		void clampZ(float min, float max);		// Define o lower e upper bounds de Z
-		
-		void multClampedDist(float value, float minDist, float maxDist);	// Multiplica a distancia dentro dos limites permitidos
 		
 		float getRotationY();	// Retorna rotacao em X
 		float getRotationXZ();	// Retorna rotacao em X e Z

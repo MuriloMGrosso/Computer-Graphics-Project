@@ -2,8 +2,7 @@
 #include <cmath>
 #include <iostream>
 
-Segment::Segment(Segment* target, float dist) : target(target), dist(dist) {}
-
+Segment::Segment(Segment* target, float dist, float lerp) : target(target), dist(dist), lerp(lerp) {}
 void Segment::updatePosition() 
 {
     float distDif;
@@ -18,10 +17,10 @@ void Segment::updatePosition()
     distDif = sqrt(
         pow(xDif, 2) + pow(yDif, 2) + pow(zDif, 2) 
     );
-
-    x = target->getX() - (distDif == 0 ? 0 : xDif/distDif * dist);
-    y = target->getY() - (distDif == 0 ? 0 : yDif/distDif * dist);
-    z = target->getZ() - (distDif == 0 ? 0 : zDif/distDif * dist);
+    
+    x = lerp * (target->getX() - (distDif == 0 ? 0 : xDif/distDif * dist)) + (1 - lerp) * x;
+    y = lerp * (target->getY() - (distDif == 0 ? 0 : yDif/distDif * dist)) + (1 - lerp) * y;
+    z = lerp * (target->getZ() - (distDif == 0 ? 0 : zDif/distDif * dist)) + (1 - lerp) * z;
 
     rotY = atan2(xDif, zDif) * (180.0 / M_PI);
     rotXZ = -asin(distDif == 0 ? 0 : yDif/distDif) * (180.0 / M_PI);
@@ -41,11 +40,6 @@ float Segment::getZ() { return z; }
 void Segment::clampX(float min, float max) { x = x < min ? min : x > max ? max : x; }
 void Segment::clampY(float min, float max) { y = y < min ? min : y > max ? max : y; }
 void Segment::clampZ(float min, float max) { z = z < min ? min : z > max ? max : z; }
-
-void Segment::multClampedDist(float value, float minDist, float maxDist) 
-{ 
-    dist = dist < minDist ? minDist : dist > maxDist ? maxDist : dist * value; 
-}
 
 float Segment::getRotationY() { return rotY; }
 float Segment::getRotationXZ() { return rotXZ; }
