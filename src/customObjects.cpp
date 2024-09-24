@@ -10,69 +10,135 @@
 #define FISH_SHADOW 0.8, 0.3, 0.0, 1.0
 #define FIN_COLOR 1.0, 0.3, 0.1, 0.6
 
+void crossProd(	float ux, float uy, float uz, float vx, float vy, float vz, float& nx, float& ny, float& nz ) 
+{
+    nx = uy * vz - uz * vy;
+    ny = uz * vx - ux * vz;
+    nz = ux * vy - uy * vx;
+}
+
+void normalize(float& x, float& y, float& z) 
+{
+    float len = sqrt(x * x + y * y + z * z);
+    x /= len; y /= len; z /= len; // Modulo = 1
+}
+
+// Para GL_TRIANGLES
+void getNormal( float x1, float y1, float z1, // v1 
+		float x2, float y2, float z2, // v2  > Anti-horario!
+		float x3, float y3, float z3, // v3 
+               
+		float& nx, float& ny, float& nz) 
+{
+
+    float ux = x2 - x1;
+    float uy = y2 - y1;
+    float uz = z2 - z1;
+
+    float vx = x3 - x1;
+    float vy = y3 - y1;
+    float vz = z3 - z1;
+
+    crossProd(ux, uy, uz, vx, vy, vz, nx, ny, nz);
+
+    normalize(nx, ny, nz);
+}
+
+// Para GL_QUADS
+void getNormal(
+		float x1, float y1, float z1, // v1  > Um tanto desnecessario,
+		float x2, float y2, float z2, // v2  > mas, ajuda a organizar.
+		float x3, float y3, float z3, // v3  
+		float x4, float y4, float z4, // v4  > Tambem anti-horario.
+
+               float& nx, float& ny, float& nz) {
+
+    getNormal(x1, y1, z1, x2, y2, z2, x3, y3, z3, nx, ny, nz);
+}
+
 void fishHeadModel(float s)
 {
 	glPushMatrix();
 	glColor4f(FISH_COLOR);
 	glScalef(s, s, s);
+	float nx, ny, nz;
 
 	glBegin(GL_TRIANGLES);
 		// Forehead
+		getNormal(0, 0, 1, 0.5, .5, 0, -0.5, .5, 0, nx, ny, nz);
+		glNormal3f(nx, ny, nz);
 		glVertex3f(0, 0, 1); 		// Nose-tip
 		glVertex3f(0.5, .5, 0);		// Left brow
 		glVertex3f(-.5, .5, 0);		// Right brow	
 					
 		// Chin
+		getNormal(0, 0, 1, -0.25, -0.75, -.5, 0.25, -0.75 , -.5, nx, ny, nz);
+		glNormal3f(nx, ny, nz);
 		glVertex3f(0, 0, 1);   		// Nose-tip
-		glVertex3f(0.25, -0.75 , -.5); 	// Left chin
 		glVertex3f(-0.25, -0.75, -.5); 	// Right chin
+		glVertex3f(0.25, -0.75 , -.5); 	// Left chin
 					  
 		// Left side of face
+		getNormal(0, 0, 1, 0.25, -0.75, -.5, 0.5, .5, 0, nx, ny, nz);
+		glNormal3f(nx, ny, nz);
 		glVertex3f(0, 0, 1);   		// Nose-tip
-		glVertex3f(0.5, .5, 0);		// Left brow
 		glVertex3f(0.25, -0.75, -.5); 	// Left chin
+		glVertex3f(0.5, .5, 0);		// Left brow
 					
 		// Right side of face
+		getNormal(0, 0, 1, -0.5, .5, 0, -0.25, -0.75, -.5, nx, ny, nz);
+		glNormal3f(nx, ny, nz);
 		glVertex3f(0, 0, 1);   		// Nose-tip
 		glVertex3f(-.5, .5, 0);		// Right brow	
 		glVertex3f(-0.25, -0.75, -.5); 	// Right chin	
 
 		glColor4f(FIN_COLOR);
 		// Left hand
+		getNormal(0.4, -0.5, 0, 1, -1, -1, 1, -0.5, -1, nx, ny, nz);
+		glNormal3f(nx, ny, nz);
 		glVertex3f(0.4, -0.5, 0);   	// Joint
-		glVertex3f(1, -0.5, -1);	// Upper
 		glVertex3f(1, -1 , -1); 	// Lower
+		glVertex3f(1, -0.5, -1);	// Upper
 					
 		// Right hand
+		getNormal(-0.4, -0.5, 0, -1, -0.5, -1, -1, -1, -1, nx, ny, nz);
+		glNormal3f(nx, ny, nz);
 		glVertex3f(-0.4, -0.5, 0);	// Joint
 		glVertex3f(-1, -0.5, -1);	// Upper	
 		glVertex3f(-1, -1, -1); 	// Lower
 
 		glColor4f(FISH_COLOR);
 		// Left side of neck
-		glVertex3f(0.5, .5, 0);		// Left brow
+		getNormal(0.5, 0.5, -0.75, 0.5, .5, 0, 0.25, -0.75, -.5, nx, ny, nz);
+		glNormal3f(nx, ny, nz);
 		glVertex3f(0.5, 0.5, -0.75);	// Left neck-top
+		glVertex3f(0.5, .5, 0);		// Left brow
 		glVertex3f(0.25, -0.75, -.5); 	// Left chin
 					
 		// Right side of neck
-		glVertex3f(-.5, .5, 0);		// Right brow	
+		getNormal(-0.5, 0.5, -0.75, -0.25, -0.75, -.5, -0.5, .5, 0, nx, ny, nz);
+		glNormal3f(nx, ny, nz);
 		glVertex3f(-0.5, 0.5, -0.75);	// Right neck-top	
 		glVertex3f(-0.25, -0.75, -.5); 	// Right chin	
+		glVertex3f(-.5, .5, 0);		// Right brow	
 	glEnd();
 
 	glBegin(GL_QUADS);
 		// Top of head
+		getNormal(-0.5, 0.5, 0, 0.5, 0.5, 0, 0.5, 0.5, -0.75, nx, ny, nz);
+		glNormal3f(nx, ny, nz);
 		glVertex3f(-0.5, 0.5, 0);	// Right brow	
 		glVertex3f(0.5, 0.5, 0);	// Left brow
 		glVertex3f(0.5, 0.5, -0.75);	// Left neck-top
 		glVertex3f(-0.5, 0.5, -0.75);	// Right neck-top	
 		
-		//glColor4f(FISH_SHADOW);
 		// Back of head
-		glVertex3f(0.25, -0.75, -.5); 	// Left chin
+		getNormal(-0.25, -0.75, -.5, 0.25, -0.75, -.5, 0.5, 0.5, -0.75, nx, ny, nz);
+		glNormal3f(nx, ny, nz);
 		glVertex3f(-0.25, -0.75, -.5); 	// Right chin	
-		glVertex3f(-0.5, 0.5, -0.75);	// Right neck-top	
+		glVertex3f(0.25, -0.75, -.5); 	// Left chin
 		glVertex3f(0.5, 0.5, -0.75);	// Left neck-top
+		glVertex3f(-0.5, 0.5, -0.75);	// Right neck-top	
 	glEnd();
 
 	glPopMatrix();
@@ -82,11 +148,13 @@ void fishDorsalModel(float s)
 {
 	glPushMatrix();
 	glScalef(s, s, s);
+	float nx, ny, nz;
 
 	glBegin(GL_TRIANGLES);
 		glColor4f(FIN_COLOR);
 
 		// Top fin
+		glNormal3f(0., 0., 1.); 	// A definir...
 		glVertex3f(0, 0.5, 0.5);	// Base front
 		glVertex3f(0, 1.5, -1);		// Tip	
 		glVertex3f(0, 0.25, -0.75);	// Base back			
@@ -96,38 +164,48 @@ void fishDorsalModel(float s)
 		glColor4f(FISH_COLOR);
 
 		// Neck conection
+		getNormal(-0.5, 0.5, 0.75, 0.5, 0.5, 0.75, 0.25, -0.5, 0.75, -0.25, -0.5, 0.75, nx, ny, nz);
+		glNormal3f(nx, ny, nz);
 		glVertex3f(-0.5, 0.5, 0.75);	// Right front top
 		glVertex3f(0.5, 0.5, 0.75);	// Left front top
 		glVertex3f(0.25, -0.5, 0.75);	// Left front bottom
 		glVertex3f(-0.25, -0.5, 0.75);	// Right front bottom	
 		
 		// Left side
+		getNormal(0.5, 0.5, 0.75, 0.25, -0.5, 0.75, 0.25, -0.25, -1, 0.5, 0.25, -1, nx, ny, nz);
+		glNormal3f(nx, ny, nz);
 		glVertex3f(0.5, 0.5, 0.75);	// Left front top
 		glVertex3f(0.25, -0.5, 0.75);	// Left front bottom
 		glVertex3f(0.25, -0.25, -1);	// Left back bottom
 		glVertex3f(0.5, 0.25, -1);	// Left back top
 
 		// Right side
+		getNormal(-0.5, 0.5, 0.75, 0.5, 0.25, -1, 0.25, -0.25, -1, -0.25, -0.5, 0.75, nx, ny, nz);
+		glNormal3f(nx, ny, nz);
 		glVertex3f(-0.5, 0.5, 0.75);	// Right front top
 		glVertex3f(-0.5, 0.25, -1);	// Right back top
 		glVertex3f(-0.25, -0.25, -1);	// Right back bottom	
 		glVertex3f(-0.25, -0.5, 0.75);	// Right front bottom	
 	
 		// Top side
+		getNormal(-0.5, 0.5, 0.75, 0.5, 0.5, 0.75, 0.5, 0.25, -1, -0.5, 0.25, -1, nx, ny, nz);
+		glNormal3f(nx, ny, nz);
 		glVertex3f(-0.5, 0.5, 0.75);	// Right front top
 		glVertex3f(0.5, 0.5, 0.75);	// Left front top
 		glVertex3f(0.5, 0.25, -1);	// Left back top
 		glVertex3f(-0.5, 0.25, -1);	// Right back top
 
-		//glColor4f(FISH_SHADOW);
-
 		// Bottom side
+		getNormal(0.25, -0.25, -1, -0.25, -0.25, -1, -0.25, -0.5, 0.75, 0.25, -0.5, 0.75, nx, ny, nz);
+		glNormal3f(nx, ny, nz);
 		glVertex3f(0.25, -0.25, -1);	// Left back bottom
 		glVertex3f(-0.25, -0.25, -1);	// Right back bottom	
 		glVertex3f(-0.25, -0.5, 0.75);	// Right front bottom	
 		glVertex3f(0.25, -0.5, 0.75);	// Left front bottom
 		
 		// Tail conection
+		getNormal(-0.5, 0.25, -1, 0.5, 0.25, -1, 0.25, -0.25, -1, -0.25, -0.25, -1, nx, ny, nz);
+		glNormal3f(nx, ny, nz);
 		glVertex3f(-0.5, 0.25, -1);	// Right back top
 		glVertex3f(0.5, 0.25, -1);	// Left back top
 		glVertex3f(0.25, -0.25, -1);	// Left back bottom
@@ -138,6 +216,7 @@ void fishDorsalModel(float s)
 		glColor4f(FIN_COLOR);
 
 		// Bottom fin
+		glNormal3f(0.0, 0.0, -1.0);	// A definir...
 		glVertex3f(0, -0.25, 0.3);	// Base front	
 		glVertex3f(0, -1, -0.25);	// Tip 1
 		glVertex3f(0, -2, -0.75);	// Tip 2
@@ -152,23 +231,30 @@ void fishTailModel(float s)
 {	
 	glPushMatrix();
 	glScalef(s, s, s);
-	
+	float nx, ny, nz;
+
 	glBegin(GL_QUADS);
 		glColor4f(FISH_COLOR);
 
 		// Tail conection
-		glVertex3f(-0.5, 0.25, 0);	// Right top
+		getNormal(0.5, 0.25, 0, -0.5, 0.25, 0, -0.25, -0.25, 0, 0.25, -0.25, 0, nx, ny, nz);
+		glNormal3f(nx, ny, nz);
 		glVertex3f(0.5, 0.25, 0);	// Left top
-		glVertex3f(0.25, -0.25, 0);	// Left bottom
+		glVertex3f(-0.5, 0.25, 0);	// Right top
 		glVertex3f(-0.25, -0.25, 0);	// Right bottom	
+		glVertex3f(0.25, -0.25, 0);	// Left bottom
 
 		// Left side
+		getNormal(0, 0.5, -0.25, 0.5, 0.25, 0, 0.25, -0.25, 0, 0, -0.5, -0.25, nx, ny, nz);
+		glNormal3f(nx, ny, nz);
 		glVertex3f(0, 0.5, -0.25);	// Tail top
 		glVertex3f(0.5, 0.25, 0);	// Left top
 		glVertex3f(0.25, -0.25, 0);	// Left bottom
 		glVertex3f(0, -0.5, -0.25);	// Tail bottom	
 		
 		// Right side
+		getNormal(-0.5, 0.25, 0, 0, 0.5, -0.25, 0, -0.5, -0.25, -0.25, -0.25, 0, nx, ny, nz);
+		glNormal3f(nx, ny, nz);
 		glVertex3f(-0.5, 0.25, 0);	// Right top
 		glVertex3f(0, 0.5, -0.25);	// Tail top
 		glVertex3f(0, -0.5, -0.25);	// Tail bottom
@@ -179,6 +265,8 @@ void fishTailModel(float s)
 		glColor4f(FISH_COLOR);
 
 		// Top side
+		getNormal(0, 0.25, -0.25, 0.5, 0.25, 0, -0.5, 0.25, 0, nx, ny, nz);
+		glNormal3f(nx, ny, nz);
 		glVertex3f(0, 0.5, -0.25);	// Tail top
 		glVertex3f(0.5, 0.25, 0);	// Left top
 		glVertex3f(-0.5, 0.25, 0);	// Right top
@@ -186,6 +274,8 @@ void fishTailModel(float s)
 		//glColor4f(FISH_SHADOW);
 
 		// Top side
+		getNormal(0, -0.5, -0.25, 0.25, -0.25, 0, -0.25, -0.25, 0, nx, ny, nz);
+		glNormal3f(nx, ny, nz);
 		glVertex3f(0, -0.5, -0.25);	// Tail bottom	
 		glVertex3f(0.25, -0.25, 0);	// Left bottom
 		glVertex3f(-0.25, -0.25, 0);	// Right bottom	
@@ -194,7 +284,8 @@ void fishTailModel(float s)
 	glBegin(GL_POLYGON);
 		glColor4f(FIN_COLOR);
 		
-		// Bottom fin
+		// Big fin
+		glNormal3f(0.0, 0.0, 1.0); 	// A definir...
 		glVertex3f(0, 0.5, -0.25);	// Tail top
 		glVertex3f(0, 2, -1.5);		// Tip 1
 		glVertex3f(0, 0.5, -1);		// Tip 2
