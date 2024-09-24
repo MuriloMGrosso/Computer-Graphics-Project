@@ -67,7 +67,7 @@ void fishHeadModel(float s)
 		glVertex3f(0.5, 0.5, -0.75);	// Left neck-top
 		glVertex3f(-0.5, 0.5, -0.75);	// Right neck-top	
 		
-		glColor4f(FISH_SHADOW);
+		//glColor4f(FISH_SHADOW);
 		// Back of head
 		glVertex3f(0.25, -0.75, -.5); 	// Left chin
 		glVertex3f(-0.25, -0.75, -.5); 	// Right chin	
@@ -119,7 +119,7 @@ void fishDorsalModel(float s)
 		glVertex3f(0.5, 0.25, -1);	// Left back top
 		glVertex3f(-0.5, 0.25, -1);	// Right back top
 
-		glColor4f(FISH_SHADOW);
+		//glColor4f(FISH_SHADOW);
 
 		// Bottom side
 		glVertex3f(0.25, -0.25, -1);	// Left back bottom
@@ -183,7 +183,7 @@ void fishTailModel(float s)
 		glVertex3f(0.5, 0.25, 0);	// Left top
 		glVertex3f(-0.5, 0.25, 0);	// Right top
 
-		glColor4f(FISH_SHADOW);
+		//glColor4f(FISH_SHADOW);
 
 		// Top side
 		glVertex3f(0, -0.5, -0.25);	// Tail bottom	
@@ -212,48 +212,52 @@ void castleModel(
 		) 
 {
 	glTranslatef(x, y, z);
-	
+
 	glScalef(scale, scale, scale);
 	
 	glRotatef(rotationX, 1.0f, 0.0f, 0.0f);
 	glRotatef(rotationY, 0.0f, 1.0f, 0.0f);
 	glRotatef(rotationZ, 0.0f, 0.0f, 1.0f);
-	
-    	GLfloat walls[] = {116.0 / 255.0, 25.0 / 255.0f, 78.0 / 255.0, 1.};
-	glColor4fv(walls);
 
+	glColor4f(1, 0, 0, 1);
 	glBegin(GL_QUADS);
-    		// Frente
+    	// Frente
+		glNormal3f(0.0, 0.0, 1.0);
 		glVertex3f(-1.0, -1.0, 1.0);
 		glVertex3f(1.0, -1.0, 1.0);
 		glVertex3f(1.0, 1.0, 1.0);
 		glVertex3f(-1.0, 1.0, 1.0);
 		
 		// Tras
+		glNormal3f(0.0, 0.0, -1.0);
 		glVertex3f(-1.0, -1.0, -1.0);
-		glVertex3f(1.0, -1.0, -1.0);
-		glVertex3f(1.0, 1.0, -1.0);
 		glVertex3f(-1.0, 1.0, -1.0);
+		glVertex3f(1.0, 1.0, -1.0);
+		glVertex3f(1.0, -1.0, -1.0);
 		
 		// Esquerda
+		glNormal3f(-1.0, 0.0, 0.0);
 		glVertex3f(-1.0, -1.0, -1.0);
 		glVertex3f(-1.0, -1.0, 1.0);
 		glVertex3f(-1.0, 1.0, 1.0);
 		glVertex3f(-1.0, 1.0, -1.0);
 			
 		// Direita
+		glNormal3f(1.0, 0.0, 0.0);
 		glVertex3f(1.0, -1.0, -1.0);
-		glVertex3f(1.0, -1.0, 1.0);
-		glVertex3f(1.0, 1.0, 1.0);
 		glVertex3f(1.0, 1.0, -1.0);
+		glVertex3f(1.0, 1.0, 1.0);
+		glVertex3f(1.0, -1.0, 1.0);
 		
 		// Cima
+		glNormal3f(0.0, 1.0, 0.0);
 		glVertex3f(-1.0, 1.0, -1.0);
-		glVertex3f(1.0, 1.0, -1.0);
-		glVertex3f(1.0, 1.0, 1.0);
 		glVertex3f(-1.0, 1.0, 1.0);
+		glVertex3f(1.0, 1.0, 1.0);
+		glVertex3f(1.0, 1.0, -1.0);
 		
 		// Abaixo
+		glNormal3f(0.0, -1.0, 0.0);
 		glVertex3f(-1.0, -1.0, -1.0);
 		glVertex3f(1.0, -1.0, -1.0);
 		glVertex3f(1.0, -1.0, 1.0);
@@ -349,11 +353,12 @@ void aquariumModel(float s)
     glPopMatrix();
 }
 
-void baitModel(float s, float x, float y, float z, float ceil)
+void baitModel(float s)
 {
 	glPushMatrix();
-    		glColor4f(0.5, 0.2, 0.2, 1.);
-		glutSolidSphere(s, 20, 20);
+    	glColor4f(0.5, 0.2, 0.2, 1.);
+		glScalef(s, s, s);
+		glutSolidSphere(1, 20, 20);
 	glPopMatrix();
 }
 

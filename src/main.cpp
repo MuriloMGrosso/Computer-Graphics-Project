@@ -43,6 +43,7 @@ Segment fishDorsal(&fishHead, 	FISH_SIZE * 1.75, 1);	// Corpo do peixe
 Segment fishTail(&fishDorsal, 	FISH_SIZE * 1.5, 1);	// Cauda do peixe
 
 void draw();				// Desenha objetos na cena
+void setLight();			// Iluminacao da cena
 void updateView();			// Inicia e atualiza a view
 void update(int value);			// Funcao executada a cada frame
 void start(int argc, char **argv);	// Inicia parametros iniciais do Open GL	
@@ -163,7 +164,7 @@ void draw()
 		glRotatef(fishFocus.getRotationY(), 0, 1, 0);
 		glRotatef(fishFocus.getRotationXZ(), 1, 0, 0);
 
-		baitModel(5.0, fishFocus.getX(), fishFocus.getY(), fishFocus.getZ(), AQUARIUM_SIZE);
+		baitModel(5.0);
 	glPopMatrix();	
 
 	// Castelo
@@ -186,9 +187,6 @@ void draw()
 void start(int argc, char **argv) {
     glutInit(&argc, argv);    
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-    glDepthMask(GL_TRUE);
 	    
     glutInitWindowPosition(700, 100);
     glutInitWindowSize(camWidth, camHeight);
@@ -203,10 +201,11 @@ void start(int argc, char **argv) {
 	glutSpecialFunc(input::specialKeysDown);
 	glutSpecialUpFunc(input::specialKeysUp);
 
-	glutTimerFunc(1, update, 0);
-
 	glClearColor(0.0, 0.0, 0.2, 1.0);
-	glEnable(GL_DEPTH_TEST);
+
+	setLight();
+
+	glutTimerFunc(1, update, 0);
 
 	updateView();
 
@@ -214,7 +213,8 @@ void start(int argc, char **argv) {
 }
 
 
-void updateView() {
+void updateView() 
+{
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	glMatrixMode(GL_PROJECTION);
@@ -239,4 +239,36 @@ void windowSizeUpdate(int width, int height)
 	camWidth = width;
 	camHeight = height;
 	camAspect = (float)width / (float)height;
+}
+
+void setLight()
+{
+	float ambient[4] = {0, 0, 0, 0};
+	float diffuse[4] = {1., 1., 1., 1.};
+	float specular[4] = {.5, .5, .5, 1.};
+	float lightPos[4] = {0., AQUARIUM_SIZE/2, 100., 1.};
+
+	float specularity[4] = {.1, .1, .1, 1.};
+	int expoent = 100;
+
+	glShadeModel(GL_FLAT);
+
+	glMaterialfv(GL_FRONT, GL_SPECULAR, specularity);
+	glMateriali(GL_FRONT,GL_SHININESS, expoent);
+
+	glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
+	glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
+
+	glEnable(GL_COLOR_MATERIAL);
+	glEnable(GL_NORMALIZE);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	glEnable(GL_DEPTH_TEST);
+
+	//glDepthFunc(GL_LESS);
+    //glDepthMask(GL_TRUE);
+	
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
