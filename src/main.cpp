@@ -19,7 +19,7 @@
 #define DELTA_TIME 1.0/FPS		// Tempo por frame, em segundos
 #define CAM_MOVE_SPEED 100.0		// Velocidade de movimento da camera (pixels/s)
 #define CAM_ROT_SPEED 2.0		// Velocidade de rotacao da camera (rad/s)
-#define FISH_SPEED 100.0		// Velocidade do peixe (pixels/s)
+#define FISH_SPEED 75.0			// Velocidade do peixe (pixels/s)
 #define AQUARIUM_SIZE 500		// Tamanho do aquário (área de liberdade do peixe)
 #define FISH_SIZE 20.0			// Tamanho do peixe (cada segmento tem o mesmo tamanho)
 
@@ -31,9 +31,15 @@ float camAngle = 45.0;			// Angulo da view da camera
 float radius = AQUARIUM_SIZE * 1.5;
 float alpha = 0.0;
 
+float camLerp = 0.25;			// Lerp da camera
 float camX = 0.0;			// Posicao X da camera
 float camY = 0.0;			// Posicao Y da camera
 float camZ = radius;			// Posicao Z da camera
+					
+float focusLerp = 0.1;			// Lerp do alvo
+float tarX = 0.0;			// Posicao X do alvo
+float tarY = 0.0;			// Posicao Y do alvo
+float tarZ = 0.0;			// Posicao Z do alvo
 
 float prevBaitX, prevBaitY, prevBaitZ;	// Posicoes anteriores da isca
 
@@ -62,14 +68,15 @@ void update(int value) {
 
 	// Movimentacao da camera
 	alpha += input::getMouseButtonAxis() * CAM_ROT_SPEED * DELTA_TIME;
-	camX = radius * sin(alpha); 
-	camZ = radius * cos(alpha);
+	camX = (camLerp * radius * sin(alpha)) + ((1 - camLerp) * camX); 
+	camZ = (camLerp * radius * cos(alpha)) + ((1 - camLerp) * camZ);
+	
 	camAngle += input::getMouseWheel() * CAM_MOVE_SPEED * DELTA_TIME;
 	camAngle = camAngle < 5 ? 5 : camAngle > 100 ? 100 : camAngle;
 
 	// Movimentacao da isca
-	horizontalMove = input::getHorizontalAxis() * FISH_SPEED * DELTA_TIME;
-	verticalMove = input::getVerticalAxis() * FISH_SPEED * DELTA_TIME;
+	horizontalMove = input::getHorizontalAxis() * (FISH_SPEED + camAngle) * DELTA_TIME;
+	verticalMove = input::getVerticalAxis() * (FISH_SPEED + camAngle) * DELTA_TIME;
 
 	fishFocus.translate
 	(
@@ -224,8 +231,12 @@ void updateView()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
+	tarX = (focusLerp * fishFocus.getX()) + ((1 - focusLerp) * tarX);
+	tarY = (focusLerp * fishFocus.getY()) + ((1 - focusLerp) * tarY);
+	tarZ = (focusLerp * fishFocus.getZ()) + ((1 - focusLerp) * tarZ);
+
 	gluLookAt(	camX, 	camY, 	camZ,	// Cam-pos
-			fishFocus.getX(), fishFocus.getY(), fishFocus.getZ(),		// Tar-pos
+			tarX, 	tarY, 	tarZ,	// Tar-pos
 			0, 	1, 	0	// Normal
 		);
 
@@ -267,8 +278,8 @@ void setLight()
 	glEnable(GL_LIGHT0);
 	glEnable(GL_DEPTH_TEST);
 
-	//glDepthFunc(GL_LESS);
-    //glDepthMask(GL_TRUE);
+	glDepthFunc(GL_LESS);
+ 	glDepthMask(GL_TRUE);
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
