@@ -8,6 +8,7 @@ void fishTailModel(float s);
 void castleModel(float x, float y, float z, float scale, float rotationX, float rotationY, float rotationZ);
 void aquariumModel(float s);
 void baitModel(float s);
-void skyBox(std::string filepath);
+void loadSkyBox(std::string filepath);
+void updateSkyBox();
 
 #endif

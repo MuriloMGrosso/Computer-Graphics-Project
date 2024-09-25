@@ -480,29 +480,31 @@ unsigned char* loadBMP(std::string filepath, int* width, int* height) {
     	return data;
 }
 
-void skyBox(std::string filepath) {
-    	int width, height;
-    	unsigned char* data = loadBMP(filepath, &width, &height);
+int skyBoxWidth, skyBoxHeight;
+unsigned char* skyBoxData;
 
-    	if (!data) { return; }
+void loadSkyBox(std::string filepath) {
+	skyBoxData = loadBMP(filepath, &skyBoxWidth, &skyBoxHeight);
 
-    	GLuint textureID;
-    	glGenTextures(1, &textureID);
-    	glBindTexture(GL_TEXTURE_2D, textureID);
+	GLuint textureID;
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_2D, textureID);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-    	gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, skyBoxWidth, skyBoxHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, skyBoxData);
+	gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, skyBoxWidth, skyBoxHeight, GL_RGB, GL_UNSIGNED_BYTE, skyBoxData);
 
-    	delete[] data;
+	glBindTexture(GL_TEXTURE_2D, textureID);
+}
 
-    	glEnable(GL_TEXTURE_2D);
-    	glBindTexture(GL_TEXTURE_2D, textureID);
+void updateSkyBox() {
+    	if (!skyBoxData) { return; }
 
+		glEnable(GL_TEXTURE_2D);
     	glBegin(GL_QUADS);
     		// Frente // L2C2
     		glTexCoord2f(0.25f, 0.33f); glVertex3f(-1000.0f, -1000.0f, 1000.0f);  
@@ -531,7 +533,7 @@ void skyBox(std::string filepath) {
     		// Cima // L1C2
     		glTexCoord2f(0.25f, 0.66f); glVertex3f(-1000.0f, 1000.0f, 1000.0f);   
     		glTexCoord2f(0.5f, 0.66f);  glVertex3f(1000.0f, 1000.0f, 1000.0f);    
-   		glTexCoord2f(0.5f, 1.0f);   glVertex3f(1000.0f, 1000.0f, -1000.0f);   
+   			glTexCoord2f(0.5f, 1.0f);   glVertex3f(1000.0f, 1000.0f, -1000.0f);   
     		glTexCoord2f(0.25f, 1.0f);  glVertex3f(-1000.0f, 1000.0f, -1000.0f);  
 
     		// Baixo // L3C2

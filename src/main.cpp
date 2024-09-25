@@ -12,18 +12,20 @@
 #include <iostream>
 #include <GL/glut.h>
 #include <GL/gl.h>
+#include <chrono>
 
 #include "../includes/libpack.h"
 				
 #define FPS 60				// Frames por segundo
 #define DELTA_TIME 1.0/FPS		// Tempo por frame, em segundos
+#define FPS_DISPLAY_RATE .2
 #define CAM_MOVE_SPEED 100.0		// Velocidade de movimento da camera (pixels/s)
 #define CAM_ROT_SPEED 2.0		// Velocidade de rotacao da camera (rad/s)
 #define FISH_SPEED 75.0			// Velocidade do peixe (pixels/s)
 #define AQUARIUM_SIZE 500		// Tamanho do aquário (área de liberdade do peixe)
 #define FISH_SIZE 20.0			// Tamanho do peixe (cada segmento tem o mesmo tamanho)
 
-float camWidth = 640.0;			// Largura da camera (pixels)
+float camWidth = 640.0;			// Largur60a da camera (pixels)
 float camHeight = 360.0;		// Altura da camera (pixels)
 float camAspect = camWidth/camHeight;	// Aspecto da camera
 float camAngle = 45.0;			// Angulo da view da camera
@@ -48,6 +50,12 @@ Segment fishHead(&fishFocus, 50, 0.02);		// Cabeca do peixe
 Segment fishDorsal(&fishHead, 	FISH_SIZE * 1.75, 1);	// Corpo do peixe
 Segment fishTail(&fishDorsal, 	FISH_SIZE * 1.5, 1);	// Cauda do peixe
 
+int fpsCount;
+float currentFPS;
+float fpsDisplayTimer;
+float deltaTime = DELTA_TIME;
+std::chrono::time_point<std::chrono::system_clock> startFrameTime;
+
 void draw();				// Desenha objetos na cena
 void setLight();			// Iluminacao da cena
 void updateView();			// Inicia e atualiza a view
@@ -65,6 +73,22 @@ void update(int value) {
 	float deltaBaitX, deltaBaitY, deltaBaitZ;
 	float horizontalMove;
 	float verticalMove;
+	std::chrono::duration<double> timeElapsed;
+	auto prevStartFrame = startFrameTime;
+
+	startFrameTime = std::chrono::system_clock::now();
+	timeElapsed = startFrameTime - prevStartFrame;
+	currentFPS += 1.0/timeElapsed.count();
+	fpsCount++;
+
+	if(fpsDisplayTimer < 0) {
+		std::cout << "FPS: " << currentFPS/fpsCount << "\n";
+		fpsDisplayTimer = FPS_DISPLAY_RATE;
+		currentFPS = 0;
+		fpsCount = 0;
+	}
+	else
+		fpsDisplayTimer -= DELTA_TIME;
 
 	// Movimentacao da camera
 	alpha += input::getMouseButtonAxis() * CAM_ROT_SPEED * DELTA_TIME;
@@ -104,8 +128,14 @@ void update(int value) {
 	fishTail.updatePosition();
 	
 	// Atualiza a view e chama o proximo frame
-	glutTimerFunc(DELTA_TIME * 1000, update, value + 1);
 	updateView();
+
+	auto endFrameTime = std::chrono::system_clock::now();
+	std::chrono::duration<double> elapsed_seconds = endFrameTime - startFrameTime;
+	double timeLeft = DELTA_TIME * 1000 - elapsed_seconds.count();
+	timeLeft = timeLeft < 0 ? 0 : timeLeft;
+
+	glutTimerFunc(timeLeft, update, value + 1);
 }
 
 void draw() 
@@ -116,7 +146,7 @@ void draw()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	skyBox("resources/skybox.bmp");
+	updateSkyBox();
 
 	// Cabeca do peixe
 	glPushMatrix();
@@ -213,7 +243,7 @@ void start(int argc, char **argv) {
 	setLight();
 
 	glutTimerFunc(1, update, 0);
-
+	loadSkyBox("resources/skybox.bmp");
 	updateView();
 
 	glutMainLoop();
