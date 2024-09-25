@@ -8,7 +8,7 @@
 
 #define FISH_COLOR 1.0, 0.5, 0.1, 1.0
 #define FISH_SHADOW 0.8, 0.3, 0.0, 1.0
-#define FIN_COLOR 1.0, 0.3, 0.1, 0.6
+#define FIN_COLOR 1.0, 0.2, 0.0, 0.8
 
 void crossProd(	float ux, float uy, float uz, float vx, float vy, float vz, float& nx, float& ny, float& nz ) 
 {
@@ -55,6 +55,60 @@ void getNormal(
 
     getNormal(x1, y1, z1, x2, y2, z2, x3, y3, z3, nx, ny, nz);
 }
+
+void betterSolidCube(GLfloat size) {
+    GLfloat halfSize = size / 2.0f;
+
+    GLfloat mat_diffuse[] = {116.0 / 255.0, 225.0 / 255.0, 178.0 / 255.0, 0.2}; 
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
+
+    // Frente
+    glBegin(GL_QUADS);
+    glNormal3f(0.0f, 0.0f, 1.0f);
+    glVertex3f(-halfSize, -halfSize,  halfSize);
+    glVertex3f( halfSize, -halfSize,  halfSize);
+    glVertex3f( halfSize,  halfSize,  halfSize);
+    glVertex3f(-halfSize,  halfSize,  halfSize);
+
+    // Tras
+    glNormal3f(0.0f, 0.0f, -1.0f);
+    glVertex3f(-halfSize, -halfSize, -halfSize);
+    glVertex3f(-halfSize,  halfSize, -halfSize);
+    glVertex3f( halfSize,  halfSize, -halfSize);
+    glVertex3f( halfSize, -halfSize, -halfSize);
+
+    // Direita
+    glNormal3f(1.0f, 0.0f, 0.0f);  
+    glVertex3f( halfSize, -halfSize, -halfSize);
+    glVertex3f( halfSize,  halfSize, -halfSize);
+    glVertex3f( halfSize,  halfSize,  halfSize);
+    glVertex3f( halfSize, -halfSize,  halfSize);
+
+    // Esquerda
+    glNormal3f(-1.0f, 0.0f, 0.0f);  
+    glVertex3f(-halfSize, -halfSize, -halfSize);
+    glVertex3f(-halfSize, -halfSize,  halfSize);
+    glVertex3f(-halfSize,  halfSize,  halfSize);
+    glVertex3f(-halfSize,  halfSize, -halfSize);
+    
+    // Cima
+    glNormal3f(0.0f, 1.0f, 0.0f); 
+    glVertex3f(-halfSize,  halfSize, -halfSize);
+    glVertex3f(-halfSize,  halfSize,  halfSize);
+    glVertex3f( halfSize,  halfSize,  halfSize);
+    glVertex3f( halfSize,  halfSize, -halfSize);
+
+    // Abaixo
+    glNormal3f(0.0f, -1.0f, 0.0f); 
+    glVertex3f(-halfSize, -halfSize, -halfSize);
+    glVertex3f( halfSize, -halfSize, -halfSize);
+    glVertex3f( halfSize, -halfSize,  halfSize);
+    glVertex3f(-halfSize, -halfSize,  halfSize);
+    
+    glEnd();
+}
+
+
 
 void fishHeadModel(float s)
 {
@@ -360,10 +414,10 @@ void aquariumModel(float s)
 {
     glEnable(GL_COLOR_MATERIAL);
     glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
- 
+
     // Cores
-    GLfloat topColor[] 	  = {116.0 / 255.0, 225.0 / 255.0, 178.0 / 255.0, 0.4};
-    GLfloat bottomColor[] = { 34.0 / 255.0,  68.0 / 255.0, 164.0 / 255.0, 0.4};
+    GLfloat topColor[] 	  = {116.0 / 255.0, 225.0 / 255.0, 178.0 / 255.0, 0.2};
+    GLfloat bottomColor[] = { 34.0 / 255.0,  68.0 / 255.0, 164.0 / 255.0, 0.2};
     GLfloat floorColor[]  = {239.0 / 255.0, 214.0 / 255.0, 177.0 / 255.0, 1.0};
     GLfloat tableColor[]  = {145.0 / 255.0,  67.0 / 255.0,  29.0 / 255.0, 1.0};
     
@@ -371,8 +425,16 @@ void aquariumModel(float s)
     glPushMatrix();
   	glTranslatef(0., -(10 + (s/2.)), 0.);
     	glScalef(s * 1.3, 10, s * 1.3);
-    	glColor4fv(tableColor);
-	glutSolidCube(1.);
+    	glColor4fv(tableColor); 
+	glBegin(GL_QUADS);
+
+        glNormal3f(.0, 1., .0);
+        glVertex3f(-.5, -.5, -.5);
+        glVertex3f(.5, -.5, -.5);
+        glVertex3f(.5, -.5, .5);
+        glVertex3f(-.5, -.5, .5);
+ 	glEnd();
+
     glPopMatrix();
 
     // Aquário
@@ -383,6 +445,7 @@ void aquariumModel(float s)
         glBegin(GL_QUADS);
 
     	    // Frente
+	    glNormal3f(0.0, 0.0, 1.0);
 	    glColor4fv(bottomColor);
 	    glVertex3f(-1.0, -1.0, 1.0);
 	    glVertex3f(1.0, -1.0, 1.0);
@@ -391,6 +454,7 @@ void aquariumModel(float s)
 	    glVertex3f(-1.0, 1.0, 1.0);
 	
 	    // Tras
+		glNormal3f(0.0, 0.0, -1.0);
 	    glColor4fv(bottomColor);
 	    glVertex3f(-1.0, -1.0, -1.0);
 	    glVertex3f(1.0, -1.0, -1.0);
@@ -399,6 +463,7 @@ void aquariumModel(float s)
 	    glVertex3f(-1.0, 1.0, -1.0);
 	
 	    // Esquerda
+		glNormal3f(-1.0, 0.0, 0.0);
 	    glColor4fv(bottomColor); 
 	    glVertex3f(-1.0, -1.0, -1.0);
 	    glVertex3f(-1.0, -1.0, 1.0);
@@ -407,6 +472,7 @@ void aquariumModel(float s)
 	    glVertex3f(-1.0, 1.0, -1.0);
 	
 	    // Direita
+		glNormal3f(1.0, 0.0, 0.0);
 	    glColor4fv(bottomColor); 
 	    glVertex3f(1.0, -1.0, -1.0);
 	    glVertex3f(1.0, -1.0, 1.0);
@@ -415,6 +481,7 @@ void aquariumModel(float s)
 	    glVertex3f(1.0, 1.0, -1.0);
 	
 	    // Cima
+		glNormal3f(0.0, 1.0, 0.0);
 	    glColor4fv(topColor); 
 	    glVertex3f(-1.0, 1.0, -1.0);
 	    glVertex3f(1.0, 1.0, -1.0);
@@ -422,6 +489,7 @@ void aquariumModel(float s)
 	    glVertex3f(-1.0, 1.0, 1.0);
 	
 	    // Abaixo
+		glNormal3f(0.0, -1.0, 0.0);
 	    glColor4fv(floorColor); 
 	    glVertex3f(-1.0, -1.0, -1.0);
 	    glVertex3f(1.0, -1.0, -1.0);
@@ -434,14 +502,23 @@ void aquariumModel(float s)
     // Vidro do Aquario
     glColor4f(1, 1, 1, 0.4);
     glutWireCube(s); 
-
-    // Areia
+ 
+    // Areia (planificada)
     glPushMatrix();
-  	glTranslatef(0., -s/2., 0.);
-    	glScalef(s, 10, s);
-    	glColor4fv(floorColor);
-	glutSolidCube(1.);
+    glTranslatef(.0, -s / 2., .0);
+    glScalef(s, 10., s);
+    glColor4fv(floorColor); 
+
+    glBegin(GL_QUADS);
+        glNormal3f(.0, 1., .0);
+        glVertex3f(-.5, -.5, -.5);
+        glVertex3f(.5, -.5, -.5);
+        glVertex3f(.5, -.5, .5);
+        glVertex3f(-.5, -.5, .5);
+    glEnd();
+
     glPopMatrix();
+
 }
 
 void baitModel(float s)
@@ -507,36 +584,42 @@ void updateSkyBox() {
 		glEnable(GL_TEXTURE_2D);
     	glBegin(GL_QUADS);
     		// Frente // L2C2
+    		glNormal3f(0.0f, 0.0f, -1.0f);
     		glTexCoord2f(0.25f, 0.33f); glVertex3f(-1000.0f, -1000.0f, 1000.0f);  
     		glTexCoord2f(0.5f, 0.33f);  glVertex3f(1000.0f, -1000.0f, 1000.0f);   
     		glTexCoord2f(0.5f, 0.66f);  glVertex3f(1000.0f, 1000.0f, 1000.0f);    
     		glTexCoord2f(0.25f, 0.66f); glVertex3f(-1000.0f, 1000.0f, 1000.0f);   
 
     		// Tras // L2C4
+		glNormal3f(0.0, 0.0, 1.0);
     		glTexCoord2f(0.75f, 0.33f); glVertex3f(1000.0f, -1000.0f, -1000.0f);  
     		glTexCoord2f(1.0f, 0.33f);  glVertex3f(-1000.0f, -1000.0f, -1000.0f); 
     		glTexCoord2f(1.0f, 0.66f);  glVertex3f(-1000.0f, 1000.0f, -1000.0f);  
     		glTexCoord2f(0.75f, 0.66f); glVertex3f(1000.0f, 1000.0f, -1000.0f);   
 
     		// Esquerda // L2C1
+		glNormal3f(1.0, 0.0, 0.0);
     		glTexCoord2f(0.0f, 0.33f);  glVertex3f(-1000.0f, -1000.0f, -1000.0f); 
     		glTexCoord2f(0.25f, 0.33f); glVertex3f(-1000.0f, -1000.0f, 1000.0f);  
     		glTexCoord2f(0.25f, 0.66f); glVertex3f(-1000.0f, 1000.0f, 1000.0f);   
     		glTexCoord2f(0.0f, 0.66f);  glVertex3f(-1000.0f, 1000.0f, -1000.0f);  
 
     		// Direita // L2C3
+		glNormal3f(-1.0, 0.0, 0.0);
     		glTexCoord2f(0.5f, 0.33f);  glVertex3f(1000.0f, -1000.0f, 1000.0f);   
     		glTexCoord2f(0.75f, 0.33f); glVertex3f(1000.0f, -1000.0f, -1000.0f);  
     		glTexCoord2f(0.75f, 0.66f); glVertex3f(1000.0f, 1000.0f, -1000.0f);   
     		glTexCoord2f(0.5f, 0.66f);  glVertex3f(1000.0f, 1000.0f, 1000.0f);    
 
     		// Cima // L1C2
+		glNormal3f(0.0, -1.0, 0.0);
     		glTexCoord2f(0.25f, 0.66f); glVertex3f(-1000.0f, 1000.0f, 1000.0f);   
     		glTexCoord2f(0.5f, 0.66f);  glVertex3f(1000.0f, 1000.0f, 1000.0f);    
    			glTexCoord2f(0.5f, 1.0f);   glVertex3f(1000.0f, 1000.0f, -1000.0f);   
     		glTexCoord2f(0.25f, 1.0f);  glVertex3f(-1000.0f, 1000.0f, -1000.0f);  
 
     		// Baixo // L3C2
+		glNormal3f(0.0, 1.0, 0.0);
     		glTexCoord2f(0.25f, 0.0f);  glVertex3f(-1000.0f, -1000.0f, -1000.0f); 
     		glTexCoord2f(0.5f, 0.0f);   glVertex3f(1000.0f, -1000.0f, -1000.0f);  
     		glTexCoord2f(0.5f, 0.33f);  glVertex3f(1000.0f, -1000.0f, 1000.0f);   

@@ -18,7 +18,7 @@
 				
 #define FPS 60				// Frames por segundo
 #define DELTA_TIME 1.0/FPS		// Tempo por frame, em segundos
-#define FPS_DISPLAY_RATE .2
+#define FPS_DISPLAY_RATE .1
 #define CAM_MOVE_SPEED 100.0		// Velocidade de movimento da camera (pixels/s)
 #define CAM_ROT_SPEED 2.0		// Velocidade de rotacao da camera (rad/s)
 #define FISH_SPEED 75.0			// Velocidade do peixe (pixels/s)
@@ -33,12 +33,12 @@ float camAngle = 45.0;			// Angulo da view da camera
 float radius = AQUARIUM_SIZE * 1.5;
 float alpha = 0.0;
 
-float camLerp = 0.25;			// Lerp da camera
+float camLerp = 0.05;			// Lerp da camera
 float camX = 0.0;			// Posicao X da camera
 float camY = 0.0;			// Posicao Y da camera
 float camZ = radius;			// Posicao Z da camera
 					
-float focusLerp = 0.1;			// Lerp do alvo
+float focusLerp = 0.05;			// Lerp do alvo
 float tarX = 0.0;			// Posicao X do alvo
 float tarY = 0.0;			// Posicao Y do alvo
 float tarZ = 0.0;			// Posicao Z do alvo
@@ -65,6 +65,7 @@ void windowSizeUpdate(int width, int height); 	// Atualiza o tamanho da janela
 
 int main(int argc, char **argv) 
 {	
+	std::cout << std::endl;
 	start(argc, argv);
 	return 0;
 }
@@ -81,8 +82,9 @@ void update(int value) {
 	currentFPS += 1.0/timeElapsed.count();
 	fpsCount++;
 
-	if(fpsDisplayTimer < 0) {
-		std::cout << "FPS: " << currentFPS/fpsCount << "\n";
+	if(fpsDisplayTimer < 0) 
+	{
+		std::cout << "FPS: " << currentFPS/fpsCount << " \r";
 		fpsDisplayTimer = FPS_DISPLAY_RATE;
 		currentFPS = 0;
 		fpsCount = 0;
@@ -96,7 +98,7 @@ void update(int value) {
 	camZ = (camLerp * radius * cos(alpha)) + ((1 - camLerp) * camZ);
 	
 	camAngle += input::getMouseWheel() * CAM_MOVE_SPEED * DELTA_TIME;
-	camAngle = camAngle < 5 ? 5 : camAngle > 100 ? 100 : camAngle;
+	camAngle = camAngle < 5 ? 5 : camAngle > 80 ? 80 : camAngle;
 
 	// Movimentacao da isca
 	horizontalMove = input::getHorizontalAxis() * (FISH_SPEED + camAngle) * DELTA_TIME;
@@ -242,6 +244,7 @@ void start(int argc, char **argv) {
 
 	setLight();
 
+	glDisable( GL_CULL_FACE );
 	glutTimerFunc(1, update, 0);
 	loadSkyBox("resources/skybox.bmp");
 	updateView();
@@ -284,19 +287,18 @@ void windowSizeUpdate(int width, int height)
 
 void setLight()
 {
-	float ambient[4] = {0, 0, 0, 0};
+	float ambient[4] = {0, 0, 0, .3};
 	float diffuse[4] = {1., 1., 1., 1.};
 	float specular[4] = {.5, .5, .5, 1.};
-	float lightPos[4] = {0., AQUARIUM_SIZE/2, 100., 1.};
-
-	float specularity[4] = {.1, .1, .1, 1.};
-	int expoent = 100;
+	float lightPos[4] = {0., AQUARIUM_SIZE, 100., 1.};
 
 	glShadeModel(GL_FLAT);
 
+	float specularity[4] = {.1, .1, .1, 1.};
+	int expoent = 200;
 	glMaterialfv(GL_FRONT, GL_SPECULAR, specularity);
 	glMateriali(GL_FRONT,GL_SHININESS, expoent);
-
+	
 	glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
