@@ -108,7 +108,14 @@ void betterSolidCube(GLfloat size) {
     glEnd();
 }
 
-
+void eyeModel() 
+{
+	glPushMatrix();
+		glColor4f(0,0,0,1);
+		glTranslated(-0.1,0,0);
+		glutSolidSphere(0.15,10,10);
+	glPopMatrix();
+}
 
 void fishHeadModel(float s)
 {
@@ -194,6 +201,12 @@ void fishHeadModel(float s)
 		glVertex3f(0.5, 0.5, -0.75);	// Left neck-top
 		glVertex3f(-0.5, 0.5, -0.75);	// Right neck-top	
 	glEnd();
+
+	glTranslated(-.2,0,0);
+	eyeModel();
+	glTranslated(.4,0,0);
+	glRotatef(180,0,1,0);
+	eyeModel();
 
 	glPopMatrix();
 }
@@ -356,6 +369,9 @@ void castleModel(
 			float rotationX, float rotationY, float rotationZ
 		) 
 {
+	float height = 3;
+	float topSize = 0.5;
+
 	glTranslatef(x, y, z);
 
 	glScalef(scale, scale, scale);
@@ -364,49 +380,49 @@ void castleModel(
 	glRotatef(rotationY, 0.0f, 1.0f, 0.0f);
 	glRotatef(rotationZ, 0.0f, 0.0f, 1.0f);
 
-	glColor4f(1, 0, 0, 1);
+	glColor4f(0.2, 0.1, 0.2, 1);
 	glBegin(GL_QUADS);
     	// Frente
 		glNormal3f(0.0, 0.0, 1.0);
-		glVertex3f(-1.0, -1.0, 1.0);
-		glVertex3f(1.0, -1.0, 1.0);
-		glVertex3f(1.0, 1.0, 1.0);
-		glVertex3f(-1.0, 1.0, 1.0);
+		glVertex3f(-1.0, 0.0, 1.0);
+		glVertex3f(1.0, 0.0, 1.0);
+		glVertex3f(topSize, height, topSize);
+		glVertex3f(-topSize, height, topSize);
 		
 		// Tras
 		glNormal3f(0.0, 0.0, -1.0);
-		glVertex3f(-1.0, -1.0, -1.0);
-		glVertex3f(-1.0, 1.0, -1.0);
-		glVertex3f(1.0, 1.0, -1.0);
-		glVertex3f(1.0, -1.0, -1.0);
+		glVertex3f(-1.0, 0.0, -1.0);
+		glVertex3f(-topSize, height, -topSize);
+		glVertex3f(topSize, height, -topSize);
+		glVertex3f(1.0, 0.0, -1.0);
 		
 		// Esquerda
-		glNormal3f(-1.0, 0.0, 0.0);
-		glVertex3f(-1.0, -1.0, -1.0);
-		glVertex3f(-1.0, -1.0, 1.0);
-		glVertex3f(-1.0, 1.0, 1.0);
-		glVertex3f(-1.0, 1.0, -1.0);
+		glNormal3f(-1.0, 1.0, 0.0);
+		glVertex3f(-1.0, 0.0, -1.0);
+		glVertex3f(-1.0, 0.0, 1.0);
+		glVertex3f(-topSize, height, topSize);
+		glVertex3f(-topSize, height, -topSize);
 			
 		// Direita
 		glNormal3f(1.0, 0.0, 0.0);
-		glVertex3f(1.0, -1.0, -1.0);
-		glVertex3f(1.0, 1.0, -1.0);
-		glVertex3f(1.0, 1.0, 1.0);
-		glVertex3f(1.0, -1.0, 1.0);
+		glVertex3f(1.0, 0.0, -1.0);
+		glVertex3f(topSize, height, -topSize);
+		glVertex3f(topSize, height, topSize);
+		glVertex3f(1.0, 0.0, 1.0);
 		
 		// Cima
-		glNormal3f(0.0, 1.0, 0.0);
-		glVertex3f(-1.0, 1.0, -1.0);
-		glVertex3f(-1.0, 1.0, 1.0);
-		glVertex3f(1.0, 1.0, 1.0);
-		glVertex3f(1.0, 1.0, -1.0);
+		glNormal3f(0.0, height, 0.0);
+		glVertex3f(-topSize, height, -topSize);
+		glVertex3f(-topSize, height, topSize);
+		glVertex3f(topSize, height, topSize);
+		glVertex3f(topSize, height, -topSize);
 		
 		// Abaixo
-		glNormal3f(0.0, -1.0, 0.0);
-		glVertex3f(-1.0, -1.0, -1.0);
-		glVertex3f(1.0, -1.0, -1.0);
-		glVertex3f(1.0, -1.0, 1.0);
-		glVertex3f(-1.0, -1.0, 1.0);
+		glNormal3f(0.0, 0.0, 0.0);
+		glVertex3f(-1.0, 0.0, -1.0);
+		glVertex3f(1.0, 0.0, -1.0);
+		glVertex3f(1.0, 0.0, 1.0);
+		glVertex3f(-1.0, 0.0, 1.0);
 	glEnd();
 }
 
@@ -418,7 +434,7 @@ void aquariumModel(float s)
     // Cores
     GLfloat topColor[] 	  = {116.0 / 255.0, 225.0 / 255.0, 178.0 / 255.0, 0.2};
     GLfloat bottomColor[] = { 34.0 / 255.0,  68.0 / 255.0, 164.0 / 255.0, 0.2};
-    GLfloat floorColor[]  = {239.0 / 255.0, 214.0 / 255.0, 177.0 / 255.0, 1.0};
+    GLfloat floorColor[]  = {200.0 / 255.0, 180.0 / 255.0, 110.0 / 255.0, 1.0};
     GLfloat tableColor[]  = {145.0 / 255.0,  67.0 / 255.0,  29.0 / 255.0, 1.0};
     
     // Mesa
@@ -512,13 +528,12 @@ void aquariumModel(float s)
     glBegin(GL_QUADS);
         glNormal3f(.0, 1., .0);
         glVertex3f(-.5, -.5, -.5);
-        glVertex3f(.5, -.5, -.5);
-        glVertex3f(.5, -.5, .5);
-        glVertex3f(-.5, -.5, .5);
+        glVertex3f(.5, .5, -.5);
+        glVertex3f(.5, -1., .5);
+        glVertex3f(-.5, 1.0, .5);
     glEnd();
 
     glPopMatrix();
-
 }
 
 void baitModel(float s)
@@ -581,6 +596,7 @@ void loadSkyBox(std::string filepath) {
 void updateSkyBox() {
     	if (!skyBoxData) { return; }
 
+		glColor4f(1.0,1.0,1.0,1.0);
 		glEnable(GL_TEXTURE_2D);
     	glBegin(GL_QUADS);
     		// Frente // L2C2

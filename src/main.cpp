@@ -208,8 +208,8 @@ void draw()
 
 	// Castelo
 	glPushMatrix();
-		castleModel(0, -(AQUARIUM_SIZE / 2) + 20, 0, // X, Y, Z
-			   20, 				     // Escala
+		castleModel(-100, -(AQUARIUM_SIZE / 2), -100, // X, Y, Z
+			   40, 				     // Escala
 			   0, 0, 0);			     // Rotação
 	glPopMatrix();
 
