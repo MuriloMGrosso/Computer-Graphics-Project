@@ -129,6 +129,9 @@ void update(int value) {
 	fishDorsal.updatePosition(); 
 	fishTail.updatePosition();
 	
+	float lightPos[4] = {prevBaitX, prevBaitY, prevBaitZ, 1.};
+	glLightfv(GL_LIGHT1, GL_POSITION, lightPos);
+	
 	// Atualiza a view e chama o proximo frame
 	updateView();
 
@@ -147,8 +150,6 @@ void draw()
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	updateSkyBox();
 
 	// Cabeca do peixe
 	glPushMatrix();
@@ -203,7 +204,7 @@ void draw()
 		glRotatef(fishFocus.getRotationY(), 0, 1, 0);
 		glRotatef(fishFocus.getRotationXZ(), 1, 0, 0);
 
-		baitModel(5.0);
+		baitModel(3.0);
 	glPopMatrix();	
 
 	// Castelo
@@ -240,13 +241,12 @@ void start(int argc, char **argv) {
 	glutSpecialFunc(input::specialKeysDown);
 	glutSpecialUpFunc(input::specialKeysUp);
 
-	glClearColor(0.0, 0.0, 0.2, 1.0);
+	glClearColor(0.0, 0.0, 0.1, 1.0);
 
 	setLight();
 
 	glDisable( GL_CULL_FACE );
 	glutTimerFunc(1, update, 0);
-	loadSkyBox("resources/skybox.bmp");
 	updateView();
 
 	glutMainLoop();
@@ -287,22 +287,32 @@ void windowSizeUpdate(int width, int height)
 
 void setLight()
 {
-	float ambient[4] = {0, 0, 0, .3};
-	float diffuse[4] = {1., 1., 1., 1.};
-	float specular[4] = {.5, .5, .5, 1.};
 	float lightPos[4] = {0., AQUARIUM_SIZE, 100., 1.};
 
-	glShadeModel(GL_FLAT);
-
-	float specularity[4] = {.1, .1, .1, 1.};
-	int expoent = 200;
-	glMaterialfv(GL_FRONT, GL_SPECULAR, specularity);
-	glMateriali(GL_FRONT,GL_SHININESS, expoent);
-	
+        // Normal Light
+	float ambient[4] = {0, 0, 0, .3};
+	float diffuse[4] = {1., 1., 1., .3};
+	float specular[4] = {.5, .5, .5, .3};
 	glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
 	glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
+	
+	// NightMode Light
+	float baitAmbient[4] = {0.1, 0, 0, .3};
+	float baitSpecular[4] = {1., .6, .6, 1.};
+	float baitDiffuse[4] = {1., .5, .5, 1.};
+	glLightfv(GL_LIGHT1, GL_AMBIENT, baitAmbient);
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, baitDiffuse);
+	glLightfv(GL_LIGHT1, GL_SPECULAR, baitSpecular);
+	glLightfv(GL_LIGHT1, GL_POSITION, lightPos);
+
+	glShadeModel(GL_SMOOTH);
+
+	float specularity[4] = {.1, .15, .1, 1.};
+	int expoent = 1024;
+	glMaterialfv(GL_FRONT, GL_SPECULAR, specularity);
+	glMateriali(GL_FRONT,GL_SHININESS, expoent);
 
 	glEnable(GL_COLOR_MATERIAL);
 	glEnable(GL_NORMALIZE);

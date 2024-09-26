@@ -194,12 +194,12 @@ void fishHeadModel(float s)
 		glVertex3f(-0.5, 0.5, -0.75);	// Right neck-top	
 		
 		// Back of head
-		getNormal(-0.25, -0.75, -.5, 0.25, -0.75, -.5, 0.5, 0.5, -0.75, nx, ny, nz);
+		getNormal(0.25, -0.75, -.5, -0.25, -0.75, -.5, -0.5, 0.5, -0.75, nx, ny, nz);
 		glNormal3f(nx, ny, nz);
-		glVertex3f(-0.25, -0.75, -.5); 	// Right chin	
 		glVertex3f(0.25, -0.75, -.5); 	// Left chin
+		glVertex3f(-0.25, -0.75, -.5); 	// Right chin	
+		glVertex3f(-0.5, 0.5, -0.75);	// Right neck-top
 		glVertex3f(0.5, 0.5, -0.75);	// Left neck-top
-		glVertex3f(-0.5, 0.5, -0.75);	// Right neck-top	
 	glEnd();
 
 	glTranslated(-.2,0,0);
@@ -539,110 +539,9 @@ void aquariumModel(float s)
 void baitModel(float s)
 {
 	glPushMatrix();
-    	glColor4f(0.5, 0.2, 0.2, 1.);
+    	        glColor4f(0.5, 0.2, 0.2, 1.);
 		glScalef(s, s, s);
 		glutSolidSphere(1, 20, 20);
 	glPopMatrix();
-}
-
-unsigned char* loadBMP(std::string filepath, int* width, int* height) {
-    	FILE* file = fopen(filepath.c_str(), "rb");
-    	if (!file) {
-        	printf("Failed to open file: %s\n", filepath.c_str());
-        	return nullptr;
-    	}
-
-    	unsigned char header[54];
-    	fread(header, sizeof(unsigned char), 54, file);
-
-    	*width = *(int*)&header[18];
-    	*height = *(int*)&header[22];
-
-    	int imageSize = 3 * (*width) * (*height); 
-    	unsigned char* data = new unsigned char[imageSize];
-    	fread(data, sizeof(unsigned char), imageSize, file); 
-    	fclose(file);
-
-	for (int i = 0; i < imageSize; i += 3) {
-	    unsigned char temp = data[i];
-	    data[i] = data[i + 2];
-	    data[i + 2] = temp;
-	}
-
-    	return data;
-}
-
-int skyBoxWidth, skyBoxHeight;
-unsigned char* skyBoxData;
-
-void loadSkyBox(std::string filepath) {
-	skyBoxData = loadBMP(filepath, &skyBoxWidth, &skyBoxHeight);
-
-	GLuint textureID;
-	glGenTextures(1, &textureID);
-	glBindTexture(GL_TEXTURE_2D, textureID);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, skyBoxWidth, skyBoxHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, skyBoxData);
-	gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, skyBoxWidth, skyBoxHeight, GL_RGB, GL_UNSIGNED_BYTE, skyBoxData);
-
-	glBindTexture(GL_TEXTURE_2D, textureID);
-}
-
-void updateSkyBox() {
-    	if (!skyBoxData) { return; }
-
-		glColor4f(1.0,1.0,1.0,1.0);
-		glEnable(GL_TEXTURE_2D);
-    	glBegin(GL_QUADS);
-    		// Frente // L2C2
-    		glNormal3f(0.0f, 0.0f, -1.0f);
-    		glTexCoord2f(0.25f, 0.33f); glVertex3f(-1000.0f, -1000.0f, 1000.0f);  
-    		glTexCoord2f(0.5f, 0.33f);  glVertex3f(1000.0f, -1000.0f, 1000.0f);   
-    		glTexCoord2f(0.5f, 0.66f);  glVertex3f(1000.0f, 1000.0f, 1000.0f);    
-    		glTexCoord2f(0.25f, 0.66f); glVertex3f(-1000.0f, 1000.0f, 1000.0f);   
-
-    		// Tras // L2C4
-		glNormal3f(0.0, 0.0, 1.0);
-    		glTexCoord2f(0.75f, 0.33f); glVertex3f(1000.0f, -1000.0f, -1000.0f);  
-    		glTexCoord2f(1.0f, 0.33f);  glVertex3f(-1000.0f, -1000.0f, -1000.0f); 
-    		glTexCoord2f(1.0f, 0.66f);  glVertex3f(-1000.0f, 1000.0f, -1000.0f);  
-    		glTexCoord2f(0.75f, 0.66f); glVertex3f(1000.0f, 1000.0f, -1000.0f);   
-
-    		// Esquerda // L2C1
-		glNormal3f(1.0, 0.0, 0.0);
-    		glTexCoord2f(0.0f, 0.33f);  glVertex3f(-1000.0f, -1000.0f, -1000.0f); 
-    		glTexCoord2f(0.25f, 0.33f); glVertex3f(-1000.0f, -1000.0f, 1000.0f);  
-    		glTexCoord2f(0.25f, 0.66f); glVertex3f(-1000.0f, 1000.0f, 1000.0f);   
-    		glTexCoord2f(0.0f, 0.66f);  glVertex3f(-1000.0f, 1000.0f, -1000.0f);  
-
-    		// Direita // L2C3
-		glNormal3f(-1.0, 0.0, 0.0);
-    		glTexCoord2f(0.5f, 0.33f);  glVertex3f(1000.0f, -1000.0f, 1000.0f);   
-    		glTexCoord2f(0.75f, 0.33f); glVertex3f(1000.0f, -1000.0f, -1000.0f);  
-    		glTexCoord2f(0.75f, 0.66f); glVertex3f(1000.0f, 1000.0f, -1000.0f);   
-    		glTexCoord2f(0.5f, 0.66f);  glVertex3f(1000.0f, 1000.0f, 1000.0f);    
-
-    		// Cima // L1C2
-		glNormal3f(0.0, -1.0, 0.0);
-    		glTexCoord2f(0.25f, 0.66f); glVertex3f(-1000.0f, 1000.0f, 1000.0f);   
-    		glTexCoord2f(0.5f, 0.66f);  glVertex3f(1000.0f, 1000.0f, 1000.0f);    
-   			glTexCoord2f(0.5f, 1.0f);   glVertex3f(1000.0f, 1000.0f, -1000.0f);   
-    		glTexCoord2f(0.25f, 1.0f);  glVertex3f(-1000.0f, 1000.0f, -1000.0f);  
-
-    		// Baixo // L3C2
-		glNormal3f(0.0, 1.0, 0.0);
-    		glTexCoord2f(0.25f, 0.0f);  glVertex3f(-1000.0f, -1000.0f, -1000.0f); 
-    		glTexCoord2f(0.5f, 0.0f);   glVertex3f(1000.0f, -1000.0f, -1000.0f);  
-    		glTexCoord2f(0.5f, 0.33f);  glVertex3f(1000.0f, -1000.0f, 1000.0f);   
-    		glTexCoord2f(0.25f, 0.33f); glVertex3f(-1000.0f, -1000.0f, 1000.0f);  
-
-    	glEnd();
-
-    	glDisable(GL_TEXTURE_2D);
 }
 

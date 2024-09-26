@@ -2,6 +2,8 @@
 #include <iostream>
 #include <GL/glut.h>
 
+bool nightMode = true;
+
 void input::keyboardDown(unsigned char key, int x, int y) 
 {
     int btn = (int)key;
@@ -25,13 +27,20 @@ void input::specialKeysUp(int key, int x, int y)
 }
 
 void input::mouseManager(int button, int state, int x, int y) {
+    pressedMouse[button] = state == GLUT_DOWN;
     switch(button)
     {
-        case 0:
-        case 1:
-        case 2:
-            pressedMouse[button] = state == GLUT_DOWN;
+        case 0: break;
+        case 1:             
+            if(state == GLUT_DOWN) 
+            {
+              if (nightMode) { glDisable(GL_LIGHT0); glEnable(GL_LIGHT1); }
+              else           { glDisable(GL_LIGHT1); glEnable(GL_LIGHT0); }
+              
+              nightMode = !nightMode;
+            }
             break;
+        case 2: break;
         case 3:
             if(state == GLUT_DOWN)
                 mouseWheelCount--;
