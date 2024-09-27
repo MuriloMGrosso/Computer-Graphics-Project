@@ -1,26 +1,28 @@
 /* 
- * Implementacao de um segmento com
- * Inverse Kinematics.
+ * Segmento com Inverse Kinematics.
  */
 
 #ifndef FISH_SEGMENT_H
 #define FISH_SEGMENT_H
 
+/*----------------------------------------------------------------------------------------*/
+// DECLARACAO DAS FUNCOES
+
 class Segment
 {
 	private:
 		Segment* target;	// Segmento alvo
-		float dist;		// Distancia ate o alvo
+		float dist;			// Distancia ate o alvo
 
 		float x, y, z;		// Coordenadas
-		float rotY, rotXZ;		// Rotacoes (graus)
-		float lerp;
+		float rotY, rotXZ;	// Rotacoes (graus)
+		float lerp;			// Interpolacao
 
 	public:
-    	Segment(Segment* target, float dist, float lerp);		// Construtor
+    	Segment(Segment* target, float dist, float lerp);	// Construtor
 
-		void updatePosition();		// Atualiza a posicao do segmento
-		void translate(float x, float y, float z);		// Movimenta o segmento
+		void updatePosition();						// Atualiza a posicao do segmento
+		void translate(float x, float y, float z);	// Movimenta o segmento
 
 		float getX();	// Retorna coordenada X
 		float getY();	// Retorna coordenada Y

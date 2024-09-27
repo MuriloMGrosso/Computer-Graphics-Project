@@ -1,3 +1,10 @@
+/* 
+ * Modelos de objetos customizados.
+ */
+
+/*----------------------------------------------------------------------------------------*/
+// BIBLIOTECAS
+
 #include "../includes/libpack.h"
 #include <GL/glut.h>
 #include <GL/gl.h>
@@ -5,20 +12,24 @@
 #include <cmath>
 #include <cstring>
 #include <iostream>
+#include <string>
+
+/*----------------------------------------------------------------------------------------*/
+// MACROS
 
 #define FISH_COLOR 1.0, 0.5, 0.1, 1.0
-#define FISH_SHADOW 0.8, 0.3, 0.0, 1.0
 #define FIN_COLOR 1.0, 0.2, 0.0, 0.8
 
-void crossProd(	float ux, float uy, float uz, float vx, float vy, float vz, float& nx, float& ny, float& nz ) 
-{
+/*----------------------------------------------------------------------------------------*/
+// IMPLEMENTACAO DAS FUNCOES
+
+void crossProd(	float ux, float uy, float uz, float vx, float vy, float vz, float& nx, float& ny, float& nz ) {
     nx = uy * vz - uz * vy;
     ny = uz * vx - ux * vz;
     nz = ux * vy - uy * vx;
 }
 
-void normalize(float& x, float& y, float& z) 
-{
+void normalize(float& x, float& y, float& z) {
     float len = sqrt(x * x + y * y + z * z);
     x /= len; y /= len; z /= len; // Modulo = 1
 }
@@ -108,8 +119,7 @@ void betterSolidCube(GLfloat size) {
     glEnd();
 }
 
-void eyeModel() 
-{
+void eyeModel() {
 	glPushMatrix();
 		glColor4f(0,0,0,1);
 		glTranslated(-0.1,0,0);
@@ -117,8 +127,7 @@ void eyeModel()
 	glPopMatrix();
 }
 
-void fishHeadModel(float s)
-{
+void fishHeadModel(float s) {
 	glPushMatrix();
 	glColor4f(FISH_COLOR);
 	glScalef(s, s, s);
@@ -211,8 +220,7 @@ void fishHeadModel(float s)
 	glPopMatrix();
 }
 
-void fishDorsalModel(float s)
-{
+void fishDorsalModel(float s) {
 	glPushMatrix();
 	glScalef(s, s, s);
 	float nx, ny, nz;
@@ -294,8 +302,7 @@ void fishDorsalModel(float s)
 	glPopMatrix();
 }
 
-void fishTailModel(float s)
-{	
+void fishTailModel(float s) {	
 	glPushMatrix();
 	glScalef(s, s, s);
 	float nx, ny, nz;
@@ -338,8 +345,6 @@ void fishTailModel(float s)
 		glVertex3f(0.5, 0.25, 0);	// Left top
 		glVertex3f(-0.5, 0.25, 0);	// Right top
 
-		//glColor4f(FISH_SHADOW);
-
 		// Top side
 		getNormal(0, -0.5, -0.25, 0.25, -0.25, 0, -0.25, -0.25, 0, nx, ny, nz);
 		glNormal3f(nx, ny, nz);
@@ -363,24 +368,7 @@ void fishTailModel(float s)
 	glPopMatrix();
 }
 
-void castleModel(
-			float x, float y, float z,
-			float scale, 
-			float rotationX, float rotationY, float rotationZ
-		) 
-{
-	float height = 3;
-	float topSize = 0.5;
-
-	glTranslatef(x, y, z);
-
-	glScalef(scale, scale, scale);
-	
-	glRotatef(rotationX, 1.0f, 0.0f, 0.0f);
-	glRotatef(rotationY, 0.0f, 1.0f, 0.0f);
-	glRotatef(rotationZ, 0.0f, 0.0f, 1.0f);
-
-	glColor4f(0.2, 0.1, 0.2, 1);
+void stonePillar(float topSize, float height) {
 	glBegin(GL_QUADS);
     	// Frente
 		glNormal3f(0.0, 0.0, 1.0);
@@ -423,11 +411,97 @@ void castleModel(
 		glVertex3f(1.0, 0.0, -1.0);
 		glVertex3f(1.0, 0.0, 1.0);
 		glVertex3f(-1.0, 0.0, 1.0);
-	glEnd();
+	glEnd();	
 }
 
-void aquariumModel(float s) 
+void castleModel(
+			float x, float y, float z,
+			float scale, 
+			float rotationX, float rotationY, float rotationZ
+		) 
 {
+	float height = 3;
+	float topSize = 0.5;
+
+	glTranslatef(x, y, z);
+
+	glScalef(scale, scale, scale);
+	
+	glRotatef(rotationX, 1.0f, 0.0f, 0.0f);
+	glRotatef(rotationY, 0.0f, 1.0f, 0.0f);
+	glRotatef(rotationZ, 0.0f, 0.0f, 1.0f);
+
+	glColor4f(0.2, 0.1, 0.2, 1);
+	/* Base */
+	stonePillar(topSize, height);
+
+	/* Boca */
+	glColor4f(.1, 0, 0, 1);
+	glPushMatrix();
+		glTranslated(0, .35, 1);
+		glScalef(1.5, 2, 1);
+		glRotatef(180, 0, 1, 0);
+		glutSolidCone(.2, 1, 10, 10); 
+	glPopMatrix();
+
+	/* Olhos */
+	glColor4f(0.5, 0.8, 1, 1);
+	glPushMatrix();
+		glTranslated(-.35, height/1.5, .81);
+		glRotatef(180, 0, 1, 0);
+		glutSolidCone(.1, 1, 10, 10); 
+	glPopMatrix();
+
+	glPushMatrix();
+		glTranslated(.35, height/1.5, .81);
+		glRotatef(180, 0, 1, 0);
+		glutSolidCone(.1, 1, 10, 10); 
+	glPopMatrix();
+
+	glColor4f(0.5, 0.5, 0.5, 1);
+	glPushMatrix();
+		glTranslated(-.35, height/1.5, .8);
+		glRotatef(180, 0, 1, 0);
+		glutSolidCone(.2, 1, 10, 10); 
+	glPopMatrix();
+
+	glPushMatrix();
+		glTranslated(.35, height/1.5, .8);
+		glRotatef(180, 0, 1, 0);
+		glutSolidCone(.2, 1, 10, 10); 
+	glPopMatrix();
+
+	glColor4f(0.1, 0.05, 0.1, 1);
+	/* Monocelha */
+	glPushMatrix();
+		glTranslated(0, height/1.3, (topSize + 1.0)/2.0);
+		glScalef(.5, .2, .2);
+		stonePillar(1, 1);
+	glPopMatrix();
+
+	/* Nariz */
+	glPushMatrix();
+		glTranslated(0, height/2.5, (topSize + 1.0)/2.0);
+		glScalef(.25, .25, .25);
+		stonePillar(topSize, height * 1.5);
+	glPopMatrix();
+
+	/* Orelha direita */
+	glPushMatrix();
+		glTranslated((topSize + 1.0)/2.0, height/2.0, 0);
+		glScalef(.25, .25, .25);
+		stonePillar(0.9, height);
+	glPopMatrix();
+
+	/* Orelha esquerda */
+	glPushMatrix();
+		glTranslated(-(topSize + 1.0)/2.0, height/2.0, 0);
+		glScalef(.25, .25, .25);
+		stonePillar(0.9, height);
+	glPopMatrix();
+}
+
+void aquariumModel(float s) {
     glEnable(GL_COLOR_MATERIAL);
     glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 
@@ -536,10 +610,9 @@ void aquariumModel(float s)
     glPopMatrix();
 }
 
-void baitModel(float s)
-{
+void baitModel(float s) {
 	glPushMatrix();
-    	        glColor4f(0.5, 0.2, 0.2, 1.);
+    	glColor4f(0.5, 0.2, 0.2, 1.);
 		glScalef(s, s, s);
 		glutSolidSphere(1, 20, 20);
 	glPopMatrix();

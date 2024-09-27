@@ -1,6 +1,12 @@
+/* 
+ * Modelos de objetos customizados.
+ */
+
 #ifndef CUSTOM_OBJECTS_H
 #define CUSTOM_OBJECTS_H
-#include <string>
+
+/*----------------------------------------------------------------------------------------*/
+// DECLARACAO DAS FUNCOES
 
 void fishHeadModel(float s);
 void fishDorsalModel(float s);

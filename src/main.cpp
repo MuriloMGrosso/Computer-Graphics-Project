@@ -1,157 +1,201 @@
 /*
- * Este programa foi feito para o projeto 1 da disciplina 
+ * PROJETO 1 DE COMPUTACAO GRAFICA:
+ * Este programa foi feito para o 1o projeto da disciplina 
  * de Computacao Grafica do curso Bacharelado em Ciencias
  * da Computacao (BCC) na FFCLRP USP.
  *
- * Autores:
+ * AUTORES:
  * Murilo M. Grosso
  * Octavio X. Furio
  */
 
-#include <cmath>
+/*----------------------------------------------------------------------------------------*/
+// BIBLIOTECAS
+
 #include <iostream>
 #include <GL/glut.h>
 #include <GL/gl.h>
 #include <chrono>
+#include <cmath>
 
 #include "../includes/libpack.h"
-				
-#define FPS 60				// Frames por segundo
-#define DELTA_TIME 1.0/FPS		// Tempo por frame, em segundos
-#define FPS_DISPLAY_RATE .1
-#define CAM_MOVE_SPEED 100.0		// Velocidade de movimento da camera (pixels/s)
-#define CAM_ROT_SPEED 2.0		// Velocidade de rotacao da camera (rad/s)
-#define FISH_SPEED 75.0			// Velocidade do peixe (pixels/s)
-#define AQUARIUM_SIZE 500		// Tamanho do aquário (área de liberdade do peixe)
-#define FISH_SIZE 20.0			// Tamanho do peixe (cada segmento tem o mesmo tamanho)
 
-float camWidth = 640.0;			// Largur60a da camera (pixels)
-float camHeight = 360.0;		// Altura da camera (pixels)
+/*----------------------------------------------------------------------------------------*/
+// MACROS
+
+#define TARGET_FPS 60					// Frames por segundo alvo
+#define TARGET_DELTATIME 1.0/TARGET_FPS	// Duracao alvo de um frame (s)
+#define FPS_DISPLAY_RATE 0.5			// Tempo (s) em que o FPS eh exibido na tela
+
+#define CAM_MOVE_SPEED 100.0			// Velocidade de movimento da camera (pixels/s)
+#define CAM_ROT_SPEED 2.0				// Velocidade de rotacao da camera (rad/s)
+#define CAM_LERP 0.05					// Lerp da camera
+#define CAM_TARGET_LERP 0.05			// Lerp do target da camera
+#define CAM_MIN_ANGLE 5					// Angulo minimo da camera
+#define CAM_MAX_ANGLE 80				// Angulo maximo da camera
+
+#define BAIT_SPEED 75.0					// Velocidade da isca (pixels/s)
+#define FISH_SIZE 20.0					// Tamanho do peixe
+#define AQUARIUM_SIZE 500				// Tamanho do aquário (área de liberdade do peixe)
+#define AQUARIUM_COLLISION ((AQUARIUM_SIZE / 2.) - 30.)	// Limite com a parede do aquario
+
+/*----------------------------------------------------------------------------------------*/
+// VARIAVEIS GLOBAIS
+
+float camAngle = 45.0;					// Angulo da view da camera
+float camWidth = 640.0;					// Largura da camera (pixels)
+float camHeight = 360.0;				// Altura da camera (pixels)
 float camAspect = camWidth/camHeight;	// Aspecto da camera
-float camAngle = 45.0;			// Angulo da view da camera
 					
-float radius = AQUARIUM_SIZE * 1.5;
-float alpha = 0.0;
+float camRadius = AQUARIUM_SIZE * 1.5;	// Distancia da camera a origem
+float camTetha = 0.0;					// Angulo da camera com o eixo z (rad)
 
-float camLerp = 0.05;			// Lerp da camera
 float camX = 0.0;			// Posicao X da camera
 float camY = 0.0;			// Posicao Y da camera
-float camZ = radius;			// Posicao Z da camera
+float camZ = camRadius;		// Posicao Z da camera
 					
-float focusLerp = 0.05;			// Lerp do alvo
 float tarX = 0.0;			// Posicao X do alvo
 float tarY = 0.0;			// Posicao Y do alvo
 float tarZ = 0.0;			// Posicao Z do alvo
 
-float prevBaitX, prevBaitY, prevBaitZ;	// Posicoes anteriores da isca
+Segment fishFocus (NULL       ,	0               , 1    );	// Isca
+Segment fishHead  (&fishFocus , 50              , 2e-2 );	// Cabeca do peixe
+Segment fishDorsal(&fishHead  , FISH_SIZE * 1.75, 1    );	// Corpo do peixe
+Segment fishTail  (&fishDorsal, FISH_SIZE * 1.5 , 1    );	// Cauda do peixe
 
-Segment fishFocus(NULL,	0, 1);		// O que o peixe segue
-Segment fishHead(&fishFocus, 50, 0.02);		// Cabeca do peixe
-Segment fishDorsal(&fishHead, 	FISH_SIZE * 1.75, 1);	// Corpo do peixe
-Segment fishTail(&fishDorsal, 	FISH_SIZE * 1.5, 1);	// Cauda do peixe
+int fpsCount;						// Contador de FPS				
+float meanFPS;						// Armazena o valor do FPS atual medio
+float fpsDisplayTimer;				// Temporizador para mostrar FPS
+float deltaTime = 1.0/TARGET_FPS;	// Duracao de 1 frame (s)
+std::chrono::time_point<std::chrono::system_clock> startFrameTime;	// Inicio do frame
 
-int fpsCount;
-float currentFPS;
-float fpsDisplayTimer;
-float deltaTime = DELTA_TIME;
-std::chrono::time_point<std::chrono::system_clock> startFrameTime;
+/*----------------------------------------------------------------------------------------*/
+// DECLARACAO DAS FUNCOES
 
-void draw();				// Desenha objetos na cena
-void setLight();			// Iluminacao da cena
-void updateView();			// Inicia e atualiza a view
-void update(int value);			// Funcao executada a cada frame
-void start(int argc, char **argv);	// Inicia parametros iniciais do Open GL	
+void draw();									// Desenha objetos na cena
+void setLight();								// Iluminacao da cena
+void updateView();								// Inicia e atualiza a view
+void update(int value);							// Funcao executada a cada frame
+void start(int argc, char **argv);				// Inicia parametros iniciais do Open GL	
 void windowSizeUpdate(int width, int height); 	// Atualiza o tamanho da janela
 
-int main(int argc, char **argv) 
-{	
+int normalize(double value, double min, double max);	// Normalizacao entre 0 e 1
+double lerp(double a, double b, float l);				// Interpolacao linear
+double clamp(double value, double min, double max);		// Limitacao do valor
+
+/*----------------------------------------------------------------------------------------*/
+// IMPLEMENTACAO DAS FUNCOES
+
+int main(int argc, char **argv) {	
 	std::cout << std::endl;
+	std::cout << "Iniciando simulacao..." << std::endl;
+	std::cout << std::endl;
+
 	start(argc, argv);
+
 	return 0;
 }
 
 void update(int value) {
-	float deltaBaitX, deltaBaitY, deltaBaitZ;
-	float horizontalMove;
+	/* Variaveis */
+	int normalizedCamAngle;
 	float verticalMove;
-	std::chrono::duration<double> timeElapsed;
-	auto prevStartFrame = startFrameTime;
+	float horizontalMove;
+	float lightPos[4] = {0, 0, 0, 1};
 
+	double timeLeft;	// Tempo para fim do frame (ms)
+	std::chrono::duration<double> timeElapsed;
+	std::chrono::time_point<std::chrono::system_clock> prevStartFrame;
+
+	/* Calcula o valor do FPS atual */
+	prevStartFrame = startFrameTime;
 	startFrameTime = std::chrono::system_clock::now();
-	timeElapsed = startFrameTime - prevStartFrame;
-	currentFPS += 1.0/timeElapsed.count();
+	timeElapsed = (startFrameTime - prevStartFrame);
+	deltaTime = timeElapsed.count();
+	meanFPS += 1.0/deltaTime;
 	fpsCount++;
 
 	if(fpsDisplayTimer < 0) 
 	{
-		std::cout << "FPS: " << currentFPS/fpsCount << " \r";
+		std::cout << "FPS: " << (int)(meanFPS/fpsCount) << std::endl;
 		fpsDisplayTimer = FPS_DISPLAY_RATE;
-		currentFPS = 0;
+		meanFPS = 0;
 		fpsCount = 0;
 	}
 	else
-		fpsDisplayTimer -= DELTA_TIME;
+		fpsDisplayTimer -= deltaTime;
 
-	// Movimentacao da camera
-	alpha += input::getMouseButtonAxis() * CAM_ROT_SPEED * DELTA_TIME;
-	camX = (camLerp * radius * sin(alpha)) + ((1 - camLerp) * camX); 
-	camZ = (camLerp * radius * cos(alpha)) + ((1 - camLerp) * camZ);
+	/* Movimentacao da camera */
+	camTetha += input::getMouseButtonAxis() * CAM_ROT_SPEED * deltaTime;
+	camX = lerp(camRadius * sin(camTetha), camX, CAM_LERP);
+	camZ = lerp(camRadius * cos(camTetha), camZ, CAM_LERP);
 	
-	camAngle += input::getMouseWheel() * CAM_MOVE_SPEED * DELTA_TIME;
-	camAngle = camAngle < 5 ? 5 : camAngle > 80 ? 80 : camAngle;
+	camAngle += input::getMouseWheel() * CAM_MOVE_SPEED * deltaTime;
+	camAngle = clamp(camAngle, CAM_MIN_ANGLE, CAM_MAX_ANGLE);
 
-	// Movimentacao da isca
-	horizontalMove = input::getHorizontalAxis() * (FISH_SPEED + camAngle) * DELTA_TIME;
-	verticalMove = input::getVerticalAxis() * (FISH_SPEED + camAngle) * DELTA_TIME;
+	/* Movimentacao da isca */
+	normalizedCamAngle = normalize(camAngle, CAM_MIN_ANGLE, CAM_MAX_ANGLE) + 1;
+	horizontalMove = input::getHorizontalAxis() * BAIT_SPEED * normalizedCamAngle * deltaTime;
+	verticalMove = input::getVerticalAxis() * BAIT_SPEED * normalizedCamAngle * deltaTime;
 
 	fishFocus.translate
 	(
-		horizontalMove * cos(alpha),
+		horizontalMove * cos(camTetha),
 		verticalMove,
-		horizontalMove * -sin(alpha)
+		horizontalMove * -sin(camTetha)
 	);
 
-	float clampLimit = (AQUARIUM_SIZE / 2.) - 30.;
-	fishFocus.clampX(-clampLimit, clampLimit);
-	fishFocus.clampY(-clampLimit, clampLimit);
-	fishFocus.clampZ(-clampLimit, clampLimit);	
+	fishFocus.clampX(-AQUARIUM_COLLISION, AQUARIUM_COLLISION);
+	fishFocus.clampY(-AQUARIUM_COLLISION, AQUARIUM_COLLISION);
+	fishFocus.clampZ(-AQUARIUM_COLLISION, AQUARIUM_COLLISION);				
 
-	deltaBaitX = fishFocus.getX() - prevBaitX;
-	deltaBaitY = fishFocus.getY() - prevBaitY;	
-	deltaBaitZ = fishFocus.getZ() - prevBaitZ;			
-
-	prevBaitX = fishFocus.getX();
-	prevBaitY = fishFocus.getY();
-	prevBaitZ = fishFocus.getZ();	
-
-	// Movimenta o peixe
+	/* Atualiza posicao do peixe */
 	fishHead.updatePosition(); 
 	fishDorsal.updatePosition(); 
 	fishTail.updatePosition();
 	
-	float lightPos[4] = {prevBaitX, prevBaitY, prevBaitZ, 1.};
+	/* Atualiza posicao da luz */
+	if(input::isKeyPressed('1')) {
+		// Luz padrao
+		glDisable(GL_LIGHT1); 
+		glEnable(GL_LIGHT0);
+	}
+	else if(input::isKeyPressed('2')){
+		// Luz darkmode
+		glDisable(GL_LIGHT0); 
+		glEnable(GL_LIGHT1);
+	}
+	else if(input::isKeyPressed('3')){
+		// Desativa todas as luzes
+		glDisable(GL_LIGHT0); 
+		glDisable(GL_LIGHT1);
+	}
+
+	lightPos[0] = fishFocus.getX();
+	lightPos[1] = fishFocus.getY();
+	lightPos[2] = fishFocus.getZ();
+
 	glLightfv(GL_LIGHT1, GL_POSITION, lightPos);
-	
-	// Atualiza a view e chama o proximo frame
+
+	/* Atualiza a view */
 	updateView();
 
-	auto endFrameTime = std::chrono::system_clock::now();
-	std::chrono::duration<double> elapsed_seconds = endFrameTime - startFrameTime;
-	double timeLeft = DELTA_TIME * 1000 - elapsed_seconds.count();
-	timeLeft = timeLeft < 0 ? 0 : timeLeft;
+	/* Chama o proximo frame */
+	timeElapsed = std::chrono::system_clock::now() - startFrameTime;
+	timeLeft = TARGET_DELTATIME * 1000 - timeElapsed.count();
+	timeLeft = clamp(timeLeft, 0, timeLeft);
 
 	glutTimerFunc(timeLeft, update, value + 1);
 }
 
-void draw() 
-{
+void draw() {
+	/* Parametros gl */
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glViewport(0, 0, camWidth, camHeight);
-
-	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glViewport(0, 0, camWidth, camHeight);
+	glEnable(GL_BLEND);
 
-	// Cabeca do peixe
+	/* Cabeca do peixe */
 	glPushMatrix();
 		glTranslatef(
 			fishHead.getX(), 
@@ -166,7 +210,7 @@ void draw()
 		fishHeadModel(FISH_SIZE);
 	glPopMatrix();
 
-	// Corpo do peixe
+	/* Corpo do peixe */
 	glPushMatrix();
 		glTranslatef(
 			fishDorsal.getX(), 
@@ -177,10 +221,11 @@ void draw()
 		glRotatef(fishDorsal.getRotationXZ(), 1, 0, 0);
 
 		glTranslatef(0,0,1 * FISH_SIZE);
+
 		fishDorsalModel(FISH_SIZE);
 	glPopMatrix();
 
-	// Cauda do peixe
+	/* Cauda do peixe */
 	glPushMatrix();
 		glTranslatef(
 			fishTail.getX(), 
@@ -191,10 +236,11 @@ void draw()
 		glRotatef(fishTail.getRotationXZ(), 1, 0, 0);
 
 		glTranslatef(0,0,1.5 * FISH_SIZE);
+
 		fishTailModel(FISH_SIZE);
 	glPopMatrix();
 	
-	// Isca
+	/* Isca */
 	glPushMatrix();	
 		glTranslatef(
 			fishFocus.getX(), 
@@ -207,14 +253,14 @@ void draw()
 		baitModel(3.0);
 	glPopMatrix();	
 
-	// Castelo
+	/* Castelo */
 	glPushMatrix();
 		castleModel(-100, -(AQUARIUM_SIZE / 2), -100, // X, Y, Z
-			   40, 				     // Escala
-			   0, 0, 0);			     // Rotação
+			   60, 				     // Escala
+			   0, 0, 0);			 // Rotação
 	glPopMatrix();
 
-	// Aquario
+	/* Aquario */
 	glDepthMask(GL_FALSE);
 		glPushMatrix();
 			aquariumModel(AQUARIUM_SIZE);
@@ -252,9 +298,7 @@ void start(int argc, char **argv) {
 	glutMainLoop();
 }
 
-
-void updateView() 
-{
+void updateView() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	glMatrixMode(GL_PROJECTION);
@@ -264,20 +308,20 @@ void updateView()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	tarX = (focusLerp * fishFocus.getX()) + ((1 - focusLerp) * tarX);
-	tarY = (focusLerp * fishFocus.getY()) + ((1 - focusLerp) * tarY);
-	tarZ = (focusLerp * fishFocus.getZ()) + ((1 - focusLerp) * tarZ);
+	tarX = lerp(fishFocus.getX(), tarX, CAM_TARGET_LERP);
+	tarY = lerp(fishFocus.getY(), tarY, CAM_TARGET_LERP);
+	tarZ = lerp(fishFocus.getZ(), tarZ, CAM_TARGET_LERP);
 
-	gluLookAt(	camX, 	camY, 	camZ,	// Cam-pos
+	gluLookAt(
+			camX, 	camY, 	camZ,	// Cam-pos
 			tarX, 	tarY, 	tarZ,	// Tar-pos
-			0, 	1, 	0	// Normal
+			0   , 	1   , 	0		// Normal
 		);
 
 	glutPostRedisplay();
 }
 
-void windowSizeUpdate(int width, int height)
-{
+void windowSizeUpdate(int width, int height) {
 	height = height == 0 ? 1 : height;
 
 	camWidth = width;
@@ -285,32 +329,36 @@ void windowSizeUpdate(int width, int height)
 	camAspect = (float)width / (float)height;
 }
 
-void setLight()
-{
-	float lightPos[4] = {0., AQUARIUM_SIZE, 100., 1.};
+void setLight() {
+	/* Variaveis */
+	int expoent = 1024;
 
-        // Normal Light
 	float ambient[4] = {0, 0, 0, .3};
 	float diffuse[4] = {1., 1., 1., .3};
 	float specular[4] = {.5, .5, .5, .3};
+
+	float ambientDark[4] = {0.1, 0, 0, .3};
+	float diffuseDark[4] = {1., .6, .6, 1.};
+	float specularDark[4] = {1., .5, .5, 1.};
+
+	float specularity[4] = {.1, .15, .1, 1.};
+	float lightPos[4] = {0., AQUARIUM_SIZE, 100., 1.};
+
+	/* Luz padrao */
 	glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
 	glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
 	
-	// NightMode Light
-	float baitAmbient[4] = {0.1, 0, 0, .3};
-	float baitSpecular[4] = {1., .6, .6, 1.};
-	float baitDiffuse[4] = {1., .5, .5, 1.};
-	glLightfv(GL_LIGHT1, GL_AMBIENT, baitAmbient);
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, baitDiffuse);
-	glLightfv(GL_LIGHT1, GL_SPECULAR, baitSpecular);
+	/* Luz darkmode */
+	glLightfv(GL_LIGHT1, GL_AMBIENT, ambientDark);
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, diffuseDark);
+	glLightfv(GL_LIGHT1, GL_SPECULAR, specularDark);
 	glLightfv(GL_LIGHT1, GL_POSITION, lightPos);
 
+	/* Outros parametros */
 	glShadeModel(GL_SMOOTH);
 
-	float specularity[4] = {.1, .15, .1, 1.};
-	int expoent = 1024;
 	glMaterialfv(GL_FRONT, GL_SPECULAR, specularity);
 	glMateriali(GL_FRONT,GL_SHININESS, expoent);
 
@@ -324,4 +372,16 @@ void setLight()
  	glDepthMask(GL_TRUE);
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+int normalize(double value, double min, double max) {
+	return (value - min) / (max - min);
+}
+
+double lerp(double a, double b, float l) {
+	return a * l + b * (1 - l);
+}
+
+double clamp(double value, double min, double max) {
+	return value < min ? min : value > max ? max : value;
 }
