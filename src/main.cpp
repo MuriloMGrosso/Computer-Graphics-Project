@@ -16,7 +16,9 @@
 #include <GL/glut.h>
 #include <GL/gl.h>
 #include <chrono>
+#include <climits>
 #include <cmath>
+#include <cstdlib>
 
 #include "../includes/libpack.h"
 
@@ -38,6 +40,9 @@
 #define FISH_SIZE 20.0					// Tamanho do peixe
 #define AQUARIUM_SIZE 500				// Tamanho do aquário (área de liberdade do peixe)
 #define AQUARIUM_COLLISION ((AQUARIUM_SIZE / 2.) - 30.)	// Limite com a parede do aquario
+
+#define KELP_SPEED  1. / (TARGET_FPS * 32)
+#define KELP_AMPLITUDE 1. / 64
 
 /*----------------------------------------------------------------------------------------*/
 // VARIAVEIS GLOBAIS
@@ -62,6 +67,11 @@ Segment fishFocus (NULL       ,	0               , 1    );	// Isca
 Segment fishHead  (&fishFocus , 50              , 2e-2 );	// Cabeca do peixe
 Segment fishDorsal(&fishHead  , FISH_SIZE * 1.75, 1    );	// Corpo do peixe
 Segment fishTail  (&fishDorsal, FISH_SIZE * 1.5 , 1    );	// Cauda do peixe
+
+const int kelpAmount = 100;                               // Quantidade de Algas
+float kelp[kelpAmount][5];                               // Mantem a posicao das raizes
+float bezierPoints[kelpAmount][3][4];                    // Mantem a posicao dos pontos de Bezier das algas
+long long currAnimTime = 0;                             // Mantem momento atual (em frame)
 
 int fpsCount;						// Contador de FPS				
 float meanFPS;						// Armazena o valor do FPS atual medio
@@ -260,6 +270,31 @@ void draw() {
 			   0, 0, 0);			 // Rotação
 	glPopMatrix();
 
+        /* Algas */
+        for(int k = 0; k < kelpAmount; k++) { 
+          currAnimTime = (currAnimTime + 1) % (LLONG_MAX - 1);
+          float Bx[4], By[4], Bz[4];
+          float noiseX = sin(currAnimTime * KELP_SPEED) * KELP_AMPLITUDE;
+          float noiseZ = cos(currAnimTime * KELP_SPEED) * KELP_AMPLITUDE;
+          
+          bezierPoints[k][0][2] += noiseX;      bezierPoints[k][2][2] += noiseZ;
+          bezierPoints[k][0][3] += noiseX;      bezierPoints[k][2][3] += noiseZ;
+          
+          bezierPoints[k][0][2] = bezierPoints[k][0][2] < -AQUARIUM_COLLISION ? -AQUARIUM_COLLISION :
+                                  bezierPoints[k][0][2] >  AQUARIUM_COLLISION ?  AQUARIUM_COLLISION : bezierPoints[k][0][2];
+                                  
+          bezierPoints[k][0][3] = bezierPoints[k][0][3] < -AQUARIUM_COLLISION ? -AQUARIUM_COLLISION :
+                                  bezierPoints[k][0][3] >  AQUARIUM_COLLISION ?  AQUARIUM_COLLISION : bezierPoints[k][0][3];   
+                                  
+          bezierPoints[k][2][2] = bezierPoints[k][2][2] < -AQUARIUM_COLLISION ? -AQUARIUM_COLLISION :
+                                  bezierPoints[k][2][2] >  AQUARIUM_COLLISION ?  AQUARIUM_COLLISION : bezierPoints[k][2][2];	  
+                                  
+          bezierPoints[k][2][3] = bezierPoints[k][2][3] < -AQUARIUM_COLLISION ? -AQUARIUM_COLLISION :
+                                  bezierPoints[k][2][3] >  AQUARIUM_COLLISION ?  AQUARIUM_COLLISION : bezierPoints[k][2][3];
+                                  
+          kelpModel(kelp[k][0], kelp[k][1], kelp[k][2], kelp[k][3], kelp[k][4], bezierPoints[k][0], bezierPoints[k][1], bezierPoints[k][2]);
+        }
+      
 	/* Aquario */
 	glDepthMask(GL_FALSE);
 		glPushMatrix();
@@ -271,6 +306,8 @@ void draw() {
 }
 
 void start(int argc, char **argv) {
+    srand((unsigned) time(NULL));
+
     glutInit(&argc, argv);    
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	    
@@ -294,6 +331,19 @@ void start(int argc, char **argv) {
 	glDisable( GL_CULL_FACE );
 	glutTimerFunc(1, update, 0);
 	updateView();
+
+       for(int k = 0; k < kelpAmount; k++) {        
+          kelp[k][0] = 20 + (rand() % 6);
+          kelp[k][1] = 3 + (rand() % 5);
+          kelp[k][2] = -AQUARIUM_COLLISION + (rand() % (AQUARIUM_SIZE - 30));
+          kelp[k][3] = -(AQUARIUM_SIZE / 2.) - 5;
+          kelp[k][4] = -AQUARIUM_COLLISION + (rand() % (AQUARIUM_SIZE - 30));
+          
+          bezierPoints[k][0][0] = kelp[k][2];  bezierPoints[k][1][0] = kelp[k][3];                         bezierPoints[k][2][0] = kelp[k][4];
+          bezierPoints[k][0][1] = kelp[k][2];  bezierPoints[k][1][1] = kelp[k][3] + kelp[k][1] * 13;       bezierPoints[k][2][1] = kelp[k][4];
+          bezierPoints[k][0][2] = kelp[k][2];  bezierPoints[k][1][2] = kelp[k][3] + kelp[k][1] * 15;       bezierPoints[k][2][2] = kelp[k][4];
+          bezierPoints[k][0][3] = kelp[k][2];  bezierPoints[k][1][3] = kelp[k][3] + kelp[k][1] * 25;       bezierPoints[k][2][3] = kelp[k][4];
+        }
 
 	glutMainLoop();
 }

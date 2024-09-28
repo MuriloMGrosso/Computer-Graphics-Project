@@ -7,8 +7,10 @@
 
 #include "../includes/libpack.h"
 #include <GL/glut.h>
+#include <GL/glu.h>
 #include <GL/gl.h>
 #include <cstdio>
+#include <cstdlib>
 #include <cmath>
 #include <cstring>
 #include <iostream>
@@ -19,6 +21,7 @@
 
 #define FISH_COLOR 1.0, 0.5, 0.1, 1.0
 #define FIN_COLOR 1.0, 0.2, 0.0, 0.8
+#define KELP_COLOR 0.1, 0.8, 0.4, 0.1
 
 /*----------------------------------------------------------------------------------------*/
 // IMPLEMENTACAO DAS FUNCOES
@@ -544,7 +547,7 @@ void aquariumModel(float s) {
 	    glVertex3f(-1.0, 1.0, 1.0);
 	
 	    // Tras
-		glNormal3f(0.0, 0.0, -1.0);
+	    glNormal3f(0.0, 0.0, -1.0);
 	    glColor4fv(bottomColor);
 	    glVertex3f(-1.0, -1.0, -1.0);
 	    glVertex3f(1.0, -1.0, -1.0);
@@ -553,7 +556,7 @@ void aquariumModel(float s) {
 	    glVertex3f(-1.0, 1.0, -1.0);
 	
 	    // Esquerda
-		glNormal3f(-1.0, 0.0, 0.0);
+	    glNormal3f(-1.0, 0.0, 0.0);
 	    glColor4fv(bottomColor); 
 	    glVertex3f(-1.0, -1.0, -1.0);
 	    glVertex3f(-1.0, -1.0, 1.0);
@@ -562,7 +565,7 @@ void aquariumModel(float s) {
 	    glVertex3f(-1.0, 1.0, -1.0);
 	
 	    // Direita
-		glNormal3f(1.0, 0.0, 0.0);
+	    glNormal3f(1.0, 0.0, 0.0);
 	    glColor4fv(bottomColor); 
 	    glVertex3f(1.0, -1.0, -1.0);
 	    glVertex3f(1.0, -1.0, 1.0);
@@ -571,7 +574,7 @@ void aquariumModel(float s) {
 	    glVertex3f(1.0, 1.0, -1.0);
 	
 	    // Cima
-		glNormal3f(0.0, 1.0, 0.0);
+	    glNormal3f(0.0, 1.0, 0.0);
 	    glColor4fv(topColor); 
 	    glVertex3f(-1.0, 1.0, -1.0);
 	    glVertex3f(1.0, 1.0, -1.0);
@@ -579,7 +582,7 @@ void aquariumModel(float s) {
 	    glVertex3f(-1.0, 1.0, 1.0);
 	
 	    // Abaixo
-		glNormal3f(0.0, -1.0, 0.0);
+	    glNormal3f(0.0, -1.0, 0.0);
 	    glColor4fv(floorColor); 
 	    glVertex3f(-1.0, -1.0, -1.0);
 	    glVertex3f(1.0, -1.0, -1.0);
@@ -616,5 +619,101 @@ void baitModel(float s) {
 		glScalef(s, s, s);
 		glutSolidSphere(1, 20, 20);
 	glPopMatrix();
+}
+
+float bezierPoint(int axis, float t, float Bx[4], float By[4], float Bz[4]) {
+	switch (axis)
+	{
+		case 'x':
+		  return (pow(1.0 - t, 3.0) * Bx[0] 
+		          + 3.0 * t * pow(1.0 - t, 2.0) * Bx[1] 
+		          + 3.0 * pow(t, 2.0) * (1.0 - t) * Bx[2] 
+		          + pow(t, 3.0) * Bx[3]);
+		case 'y':
+		  return (pow(1.0 - t, 3.0) * By[0] 
+		          + 3.0 * t * pow(1.0 - t, 2.0) * By[1] 
+		          + 3.0 * pow(t, 2.0) * (1.0 - t) * By[2] 
+		          + pow(t, 3.0) * By[3]);
+		case 'z':
+		  return (pow(1.0 - t, 3.0) * Bz[0] 
+		          + 3.0 * t * pow(1.0 - t, 2.0) * Bz[1] 
+		          + 3.0 * pow(t, 2.0) * (1.0 - t) * Bz[2] 
+		          + pow(t, 3.0) * Bz[3]);
+	}
+	return 0.0;
+}
+
+
+void kelpSegment(float s, float baseX, float baseY, float baseZ) 
+{
+	glPushMatrix();
+	        glTranslatef(baseX, baseY, baseZ);
+	
+	        float nx, ny, nz;
+    	        glColor4f(KELP_COLOR);
+		glScalef(s, s, s);
+		
+		// Top
+		glBegin(GL_QUADS);
+                  glNormal3f(.0, 1., .0);
+                  glVertex3f( .5, 1., -.5); // Back-right
+                  glVertex3f(-.5, 1., -.5); // Back-left 
+                  glVertex3f(-.5, 1.,  .5); // Front-left
+                  glVertex3f( .5, 1.,  .5); // Front-right
+                glEnd();
+		
+		glBegin(GL_TRIANGLES);	  
+		  // Side 1
+		  getNormal(-.5, 1., -.5, .5, 1., -.5, 0, 0, 0, nx, ny, nz);
+		  glNormal3f(nx, ny, nz);
+		  glVertex3f(-.5, 1., -.5); // Back-left
+		  glVertex3f( .5, 1., -.5); // Back-right	
+		  glVertex3f(0, 0, 0);      // Tip
+		  
+		  // Side 2
+		  getNormal(.5, 1., -.5, .5, 1.,  .5, 0, 0, 0, nx, ny, nz);
+		  glNormal3f(nx, ny, nz);
+		  glVertex3f( .5, 1., -.5); // Back-right	
+		  glVertex3f( .5, 1.,  .5); // Front-right	
+		  glVertex3f(0, 0, 0);      // Tip
+		  
+		  // Side 3
+		  getNormal(.5, 1.,  .5, -.5, 1.,  .5, 0, 0, 0, nx, ny, nz);
+		  glNormal3f(nx, ny, nz);
+		  glVertex3f( .5, 1.,  .5); // Front-right
+		  glVertex3f(-.5, 1.,  .5); // Front-left
+		  glVertex3f(0, 0, 0);      // Tip
+		  
+		  // Side 4
+		  getNormal(-.5, 1.,  .5, -.5, 1., -.5, 0, 0, 0, nx, ny, nz);
+		  glNormal3f(nx, ny, nz);
+		  glVertex3f(-.5, 1.,  .5); // Front-left
+		  glVertex3f(-.5, 1., -.5); // Back-left 	
+		  glVertex3f(0, 0, 0);      // Tip
+        	glEnd();
+		
+      glPopMatrix();
+}
+
+void kelpModel(int segments, float scale, float baseX, float baseY, float baseZ, float Bx[4], float By[4], float Bz[4]) 
+{
+  
+  if (segments < 5 || scale < 1) return;
+  GLfloat Px, Py, Pz;
+  glPushMatrix();
+  	glTranslatef(baseX, baseY, baseZ);
+        
+	glColor3f(1.0f, 0.6, 0.6f);
+	
+	glBegin(GL_LINE_STRIP);
+		for (GLdouble t=0; t<=1.0; t+=1./segments) {
+			Px = bezierPoint('x', t, Bx, By, Bz); 
+			Py = bezierPoint('y', t, Bx, By, Bz); 
+			Pz = bezierPoint('z', t, Bx, By, Bz);
+			
+			kelpSegment(scale, Px, Py, Pz);
+	        }
+	glEnd();
+  glPopMatrix();
 }
 
